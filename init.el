@@ -106,14 +106,17 @@
    "-outline-DejaVu Sans Mono-normal-normal-normal-mono-16-*-*-*-c-*-fontset-standard"))
  ;; Mac OS X
  ((string-equal system-type "darwin")
-  ;; 待办
+  ;; TODO
   ))
 
 
 ;; frame.c --- Generic frame functions.
 ;; 只有本设置才对窗口显示字体起作用，set-face-attribute、set-face-font 和
 ;; set-frame-font 均不起作用。
-(add-to-list 'default-frame-alist '(font .  "fontset-standard"))
+(setq default-frame-alist
+      '((font .  "fontset-standard")
+        ;; (alpha . (85 50))
+        (fullscreen . fullboth)))
 (setq make-pointer-invisible nil)
 
 ;; indent.c --- Indentation functions.
@@ -211,9 +214,9 @@
 (require 'package)
 (dolist (pa '(;;("gnu" . "http://elpa.gnu.org/packages/") ; 默认已有
               ("org" . "http://orgmode.org/elpa/")
-              ("popkit" . "http://elpa.popkit.org/packages/")
-              ;;("melpa" . "http://melpa.org/packages/")
-              ;;("marmalade" . "https://marmalade-repo.org/packages/")
+              ;;("popkit" . "http://elpa.popkit.org/packages/")
+              ("melpa" . "http://melpa.org/packages/")
+              ("marmalade" . "https://marmalade-repo.org/packages/")
               ))
   (add-to-list 'package-archives pa t))
 (setq package-enable-at-startup nil)
@@ -330,7 +333,7 @@
 ;; (require 'diminish)
 ;; (setq use-package-always-ensure t)
 ;; (setq use-package-debug t)
-;; (setq use-package-verbose t)
+(setq use-package-verbose t)
 ;; (eval-when-compile
 ;;   (require 'use-package))
 (setq req-package-log-level 'error)
@@ -381,9 +384,6 @@
 (req-package doc-view
   :init (if (executable-find "gswin32c")
             (setq doc-view-ghostscript-program "gswin32c")))
-
-;; drupal-mode.el --- Advanced minor mode for Drupal development
-(req-package drupal-mode)
 
 ;; hexl.el --- edit a file in a hex dump format using the hexl filter
 (req-package hexl
@@ -845,7 +845,6 @@
 ;; executable.el --- base functionality for executable interpreter scripts
 (req-package executable
   :commands executable-make-buffer-file-executable-if-script-p
-  :requires file
   :init (add-hook 'after-save-hook
                   'executable-make-buffer-file-executable-if-script-p))
 
@@ -861,16 +860,22 @@
   :init (add-hook 'prog-mode-hook 'hs-minor-mode))
 
 ;; python.el --- Python's flying circus support for Emacs
-(req-package python
-  :init (progn
-          (setq python-skeleton-autoinsert t)
-          (when (executable-find "python3")
-            (setq python-shell-interpreter "python3"))))
+;; (req-package python
+;;   :init (progn
+;;           (setq python-skeleton-autoinsert t)
+;;           (when (executable-find "python3")
+;;             (setq python-shell-interpreter "python3"))))
 
 ;; scheme.el --- Scheme (and DSSSL) editing mode
 (req-package scheme
   :init (when (executable-find "guile")
           (setq scheme-program-name "guile")))
+
+;;; sql.el --- specialized comint.el for SQL interpreters
+(req-package sql
+  :init (setq sql-postgres-login-params `((server :default "localhost")
+                                          (user :default "postgres")
+                                          (database :default "postgres"))))
 
 ;; subword.el --- Handling capitalized subwords in a nomenclature
 (req-package subword
@@ -927,6 +932,9 @@
 (unless (package-installed-p 'jquery-doc)
   (package-install 'jquery-doc))
 
+(unless (package-installed-p 'r5rs)
+  (package-install 'r5rs))
+
 (unless (package-installed-p 'sicp)
   (package-install 'sicp))
 
@@ -934,6 +942,10 @@
 
 ;; ace-pinyin.el --- Jump to Chinese characters using ace-jump-mode or aby
 (req-package ace-pinyin)
+
+(req-package ac-html-angular)
+(req-package ac-html-bootstrap)
+(req-package ac-html-csswatcher)
 
 (req-package aggressive-fill-paragraph
   :disabled t
@@ -977,18 +989,6 @@
           (setq TeX-parse-self t)
           (setq-default TeX-master t)))
 
-(req-package auto-package-update
-  :config (auto-package-update-maybe))
-
-;; c-eldoc.el --- helpful description of the arguments to C functions
-(req-package c-eldoc
-  :defer t
-  :commands c-turn-on-eldoc-mode
-  :init (progn
-          (setq c-eldoc-cpp-command "cpp")
-          (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode)
-          (add-hook 'c++-mode-hook 'c-turn-on-eldoc-mode)))
-
 ;; cal-china-x.el --- Chinese localization, lunar/horoscope/zodiac info and more...
 (req-package cal-china-x
   :config (progn
@@ -1028,6 +1028,15 @@
              (list (cfw:org-create-source "Green")  ; orgmode source
                    (cfw:cal-create-source "Orange") ; diary source
                    ))))
+
+;; c-eldoc.el --- helpful description of the arguments to C functions
+(req-package c-eldoc
+  :defer t
+  :commands c-turn-on-eldoc-mode
+  :init (progn
+          (setq c-eldoc-cpp-command "cpp")
+          (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode)
+          (add-hook 'c++-mode-hook 'c-turn-on-eldoc-mode)))
 
 ;; chinese-fonts-setup.el --- A fonts config tool enforcing double-width Chinese character display
 (req-package chinese-fonts-setup
@@ -1081,6 +1090,9 @@
           (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
           (add-hook 'after-init-hook 'global-company-mode)))
 
+(req-package company-auctex
+  :require (company tex-site))
+
 (req-package company-c-headers
   :require company
   :init (add-to-list 'company-backends 'company-c-headers))
@@ -1096,6 +1108,9 @@
   :require company
   :config (company-quickhelp-mode 1))
 
+(req-package company-shell
+  :require company)
+
 (req-package company-statistics
   :require company
   :config (add-hook 'after-init-hook 'company-statistics-mode))
@@ -1107,6 +1122,8 @@
             (require 'company-web-jade)
             (require 'company-web-slim)
             (define-key web-mode-map (kbd "C-'") 'company-web-html)))
+
+(req-package coverlay)
 
 ;; css-eldoc.el --- an eldoc-mode plugin for CSS source code
 (req-package css-eldoc
@@ -1136,6 +1153,10 @@
 (req-package drag-stuff
   :diminish drag-stuff-mode
   :config (drag-stuff-mode 1))
+
+;; drupal-mode.el --- Advanced minor mode for Drupal development
+(req-package drupal-mode
+  :require php-mode)
 
 ;; dtrt-indent.el --- Adapt to foreign indentation offsets
 (req-package dtrt-indent
@@ -1209,11 +1230,11 @@
           (add-hook 'css-mode-hook  'emmet-mode)
           (add-hook 'web-mode-hook 'emmet-mode)))
 
+(req-package emms)
+
 (req-package eshell-did-you-mean
   :require eshell
   :config (eval-after-load "eshell" '(eshell-did-you-mean-setup)))
-
-(req-package esup)
 
 (req-package expand-region
   :defer t
@@ -1235,8 +1256,6 @@
 (req-package fliptext
   :defer t)
 
-(req-package fold-dwim-org)
-
 ;; flx-ido.el --- flx integration for ido
 (req-package flx-ido
   :require ido
@@ -1253,6 +1272,14 @@
   :require flycheck
   :config (flycheck-package-setup))
 
+(req-package flycheck-pkg-config
+  :require flycheck)
+
+(req-package flycheck-vala
+  :require (flycheck vala-mode))
+
+(req-package fold-dwim-org)
+
 (req-package geiser
   :require scheme
   :init (setq geiser-default-implementation scheme-program-name))
@@ -1267,8 +1294,14 @@
                       (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
                         (ggtags-mode 1))))))
 
+(req-package gitattributes-mode)
+
+(req-package gitconfig-mode)
+
 (req-package git-gutter-fringe
   :config (global-git-gutter-mode 1))
+
+(req-package gitignore-mode)
 
 (req-package git-messenger
   :require magit
@@ -1281,15 +1314,10 @@
 
 (req-package git-timemachine)
 
-(req-package gitattributes-mode)
-
-(req-package gitconfig-mode)
-
-(req-package gitignore-mode)
-
 (req-package golden-ratio
   :diminish golden-ratio-mode
   :init (progn
+          (setq golden-ratio-auto-scale t)
           (setq golden-ratio-exclude-modes
                 '(bs-mode
                   calc-mode
@@ -1353,6 +1381,9 @@
             ;; (helm-mode 1)
             (helm-autoresize-mode 1)))
 
+(req-package helm-backup
+  :require helm)
+
 (req-package helm-company
   :require (helm company))
 
@@ -1408,6 +1439,9 @@
             (add-to-list 'projectile-other-file-alist '("js" "html")) ;; switch from js -> html
             (helm-projectile-on)))
 
+(req-package helm-smex
+  :require (helm smex))
+
 ;; helm-swoop.el --- Efficiently hopping squeezed lines powered by helm interface
 (req-package helm-swoop
   :require helm)
@@ -1435,17 +1469,17 @@
   :diminish hungry-delete-mode
   :config (global-hungry-delete-mode))
 
-(req-package iedit
-  :bind ("C-;" . iedit-mode))
+;; idomenu.el --- imenu tag selection a la ido
+(req-package idomenu
+  :require ido)
 
 ;; ido-ubiquitous.el --- Use ido (nearly) everywhere.
 (req-package ido-ubiquitous
   :require ido
   :config (ido-ubiquitous-mode 1))
 
-;; idomenu.el --- imenu tag selection a la ido
-(req-package idomenu
-  :require ido)
+(req-package iedit
+  :bind ("C-;" . iedit-mode))
 
 (req-package import-js
   :functions import-js-import import-js-goto)
@@ -1453,9 +1487,8 @@
 (req-package interleave
   :defer t)
 
-;; jdee.el --- Java Development Environment for Emacs
 (req-package jdee
-  :defer t)
+  :require ecb)
 
 ;; inferior-js-mode
 (req-package js-comint
@@ -1493,7 +1526,6 @@
 (req-package manage-minor-mode)
 
 (req-package mmm-mode
-  :requires mmm-auto
   :init (progn
           (setq mmm-submode-decoration-level 2)
           (setq mmm-global-mode 'buffers-with-submode-classes)))
@@ -1516,10 +1548,17 @@
 (req-package ob-browser
   :require org)
 
-(req-package org-eww
-  :require (org eww))
-
 (req-package ob-http
+  :require org)
+
+(req-package org-chinese-utils
+  :require (org ox)
+  :config (org-chinese-utils-enable))
+
+(req-package ox-bibtex-chinese
+  :require org)
+
+(req-package ox-latex-chinese
   :require org)
 
 (req-package org-bullets
@@ -1532,6 +1571,9 @@
 (req-package org-doing
   :require org
   :init (setq org-doing-file "~/life/doing.org"))
+
+(req-package org-eww
+  :require (org eww))
 
 (req-package org-pomodoro
   :require org)
@@ -1601,6 +1643,20 @@
   :functions persp-mode
   :init (add-hook 'after-init-hook (lambda () (persp-mode 1))))
 
+;; 不知何故，总是引起 emacs 出错退出。
+;;; php-mode.el --- Major mode for editing PHP code
+(req-package php-mode
+  :defer t
+  :init (progn
+          (setq php-executable (executable-find "php"))
+          (setq php-template-compatibility nil))
+  :config (require 'php-ext))
+
+(req-package pinyin-search)
+
+(req-package pointback
+  :config (global-pointback-mode))
+
 (req-package powerline
   ;; :init (setq powerline-default-separator 'wave)
   :config (powerline-default-theme))
@@ -1652,6 +1708,10 @@
                  (define-key region-bindings-mode-map "p" 'mc/mark-previous-like-this)
                  (define-key region-bindings-mode-map "n" 'mc/mark-next-like-this)
                  (define-key region-bindings-mode-map "m" 'mc/mark-more-like-this-extended)))
+
+(req-package rw-language-and-country-codes)
+(req-package rw-hunspell)
+(req-package rw-ispell)
 
 ;; session.el --- use variables, registers and buffer places across sessions
 (req-package session
@@ -1753,8 +1813,8 @@
                     'append))
 
 (req-package web-mode
-  :mode ("\\.html?\\'" "\\.tpla\\'" "\\.phtml\\'" "\\.[agj]sp\\'"
-         "\\.as[cp]x\\'" "\\.erb\\'" "\\.mustache\\'" "\\.djhtml\\'")
+  :mode ("\\.html?\\'" "\\.tpl\\'" "\\.tpla\\'" "\\.php\\'" "\\.phtml\\'"
+         "\\.[agj]sp\\'" "\\.as[cp]x\\'" "\\.erb\\'" "\\.mustache\\'" "\\.djhtml\\'")
   :init (progn
           (setq web-mode-enable-auto-pairing              t)
           (setq web-mode-enable-block-face                t)
@@ -1792,21 +1852,22 @@
 (req-package ws-butler
   :commands ws-butler-mode
   :diminish ws-butler-mode
-  :config (add-hook 'prog-mode-hook 'ws-butler-mode))
+  :init (add-hook 'prog-mode-hook 'ws-butler-mode))
 ;; #+end_src
 
 ;; *** 放弃的扩展
 ;; #+BEGIN_SRC emacs-lisp
 
+;; (req-package auto-package-update
+;;   :config (auto-package-update-maybe))
 
 ;; (require 'el-get)
 ;; (el-get 'sync)
 
-;; (req-package company-auctex
-;;   :require (company tex-site)
-;;   :config (company-auctex-init))
+;; (req-package esup)
 
-;; (req-package guile-scheme)
+;; (req-package guile-scheme
+;;   :require scheme)
 
 ;; (req-package outlined-elisp-mode
 ;;   :init (add-hook 'emacs-lisp-mode-hook 'outlined-elisp-find-file-hook))
@@ -1883,7 +1944,7 @@
 
 ;; (req-package smartparens
 ;;   :diminish smartparens-mode
-;;   :requires smartparens-config
+;;   :require smartparens-config
 ;;   :init
 ;;   (setq sp-base-key-bindings 'paredit)
 ;;   (setq sp-autoskip-closing-pair 'always)
@@ -1915,8 +1976,6 @@
 
 ;; (unless (package-installed-p 'r5rs)
 ;;   (package-install 'r5rs))
-;; (req-package flycheck-vala
-;;   :require (flycheck vala-mode))
 ;; (req-package rw-hunspell)
 ;; (req-package rw-ispell)
 ;; (req-package rw-language-and-country-codes)
@@ -1932,13 +1991,6 @@
 (top-level-add-to-load-path
  (expand-file-name "site-lisp/" user-emacs-directory))
 
-(require 'flycheck-vala)
-
-(require 'rw-language-and-country-codes)
-(require 'rw-hunspell)
-(require 'rw-ispell)
-
-(require 'r5rs)
 
 (require 'epubmode)
 (require 'hanconvert)
@@ -1957,7 +2009,7 @@
   (load custom-file))
 ;; #+END_SRC
 
-;;; 文件结束
+;;; 文件结束:
 ;; #+BEGIN_SRC emacs-lisp
 ;; Local Variables:
 ;; lentic-init: lentic-orgel-org-init

@@ -73,6 +73,8 @@ main (int ac, char **av[])
 " "C-M-b C-M-q C-- C-M-d" 0)
    ))
 
+(define-abbrev-table 'calc-trail-mode-abbrev-table '())
+
 (define-abbrev-table 'calendar-mode-abbrev-table '())
 
 (define-abbrev-table 'change-log-mode-abbrev-table '())
@@ -19000,6 +19002,8 @@ main (int ac, char **av[])
 
 (define-abbrev-table 'messages-buffer-mode-abbrev-table '())
 
+(define-abbrev-table 'nxml-mode-abbrev-table '())
+
 (define-abbrev-table 'ob-http-mode-abbrev-table '())
 
 (define-abbrev-table 'objc-mode-abbrev-table
@@ -19009,6 +19013,8 @@ main (int ac, char **av[])
 (define-abbrev-table 'occur-edit-mode-abbrev-table '())
 
 (define-abbrev-table 'occur-mode-abbrev-table '())
+
+(define-abbrev-table 'org-export-stack-mode-abbrev-table '())
 
 (define-abbrev-table 'org-mode-abbrev-table '())
 
@@ -19026,13 +19032,21 @@ main (int ac, char **av[])
 
 (define-abbrev-table 'prog-mode-abbrev-table '())
 
-(define-abbrev-table 'python-mode-abbrev-table '())
-
-(define-abbrev-table 'python-mode-skeleton-abbrev-table
+(define-abbrev-table 'python-mode-abbrev-table
   '(
+    ("class" "" python-skeleton-class 0)
+    ("def" "" python-skeleton-def 0)
+    ("for" "" python-skeleton-for 0)
+    ("if" "" python-skeleton-if 0)
+    ("try" "" python-skeleton-try 0)
+    ("while" "" python-skeleton-while 0)
    ))
 
+(define-abbrev-table 'python-mode-skeleton-abbrev-table '())
+
 (define-abbrev-table 'remember-mode-abbrev-table '())
+
+(define-abbrev-table 'ruby-mode-abbrev-table '())
 
 (define-abbrev-table 'scheme-mode-abbrev-table '())
 
@@ -19074,11 +19088,11 @@ main (int ac, char **av[])
 
 (define-abbrev-table 'speedbar-mode-abbrev-table '())
 
-(define-abbrev-table 'sql-mode-abbrev-table
-  '(
-   ))
+(define-abbrev-table 'sql-mode-abbrev-table '())
 
 (define-abbrev-table 'tabulated-list-mode-abbrev-table '())
+
+(define-abbrev-table 'tar-mode-abbrev-table '())
 
 (define-abbrev-table 'term-mode-abbrev-table '())
 
@@ -19086,9 +19100,7 @@ main (int ac, char **av[])
 
 (define-abbrev-table 'url-cookie-mode-abbrev-table '())
 
-(define-abbrev-table 'vala-mode-abbrev-table
-  '(
-   ))
+(define-abbrev-table 'vala-mode-abbrev-table '())
 
 (define-abbrev-table 'vc-git-log-edit-mode-abbrev-table '())
 
