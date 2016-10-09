@@ -214,9 +214,9 @@
 (require 'package)
 (dolist (pa '(;;("gnu" . "http://elpa.gnu.org/packages/") ; 默认已有
               ("org" . "http://orgmode.org/elpa/")
-              ;;("popkit" . "http://elpa.popkit.org/packages/")
-              ("melpa" . "http://melpa.org/packages/")
-              ("marmalade" . "https://marmalade-repo.org/packages/")
+              ("popkit" . "http://elpa.popkit.org/packages/")
+              ;;("melpa" . "http://melpa.org/packages/")
+              ;;("marmalade" . "https://marmalade-repo.org/packages/")
               ))
   (add-to-list 'package-archives pa t))
 (setq package-enable-at-startup nil)
@@ -1090,9 +1090,6 @@
           (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
           (add-hook 'after-init-hook 'global-company-mode)))
 
-(req-package company-auctex
-  :require (company tex-site))
-
 (req-package company-c-headers
   :require company
   :init (add-to-list 'company-backends 'company-c-headers))
@@ -1104,9 +1101,12 @@
 (req-package company-math
   :require company)
 
+(req-package company-php
+  :require (company php)
+  :init (add-to-list 'company-backends 'company-ac-php-backend))
+
 (req-package company-quickhelp
-  :require company
-  :config (company-quickhelp-mode 1))
+  :require company)
 
 (req-package company-shell
   :require company)
@@ -1197,6 +1197,10 @@
                 (expand-file-name "ecb/user-layouts.el" user-emacs-directory))
           (setq ecb-redraw-layout-quickly t)))
 
+;; ede-php-autoload.el --- Simple EDE PHP Project
+(req-package ede-php-autoload
+  :requires ede)
+
 ;; electric-case.el --- insert camelCase, snake_case words without "Shift"ing
 (req-package electric-case
   :commands (electric-case-ahk-init
@@ -1230,7 +1234,13 @@
           (add-hook 'css-mode-hook  'emmet-mode)
           (add-hook 'web-mode-hook 'emmet-mode)))
 
-(req-package emms)
+(req-package emms
+  :init (progn
+          (emms-standard)
+          ;; (emms-default-players)
+          (setq emms-player-mpg321-command-name "mpg123")
+          (setq emms-player-list                  ; 只使用mplayer播放
+                (list emms-player-mplayer-playlist emms-player-mplayer))))
 
 (req-package eshell-did-you-mean
   :require eshell
@@ -1514,6 +1524,7 @@
 ;; lentic-mode.el --- minor mode for lentic buffers
 (req-package lentic
   :defer t
+  :require m-buffer
   :config (global-lentic-mode))
 
 (req-package magit
@@ -1654,6 +1665,10 @@
 
 (req-package pinyin-search)
 
+(req-package pkgbuild-mode
+  :init (setq auto-mode-alist
+              (append '(("/PKGBUILD$" . pkgbuild-mode)) auto-mode-alist)))
+
 (req-package pointback
   :config (global-pointback-mode))
 
@@ -1781,6 +1796,9 @@
           (setq unicode-fonts-skip-font-groups
                 '(buggy-before-vista decorative low-quality-glyphs multicolor non-free)))
   :config (unicode-fonts-setup))
+
+;; (req-package unicode-whitespace
+;;   :config (unicode-whitespace-setup 'subdued-faces))
 
 (req-package vala-mode)
 
@@ -1934,6 +1952,10 @@
 ;; (req-package outshine)
 ;; (req-package navi-mode)
 
+
+;; (req-package company-auctex
+;;   :require (company tex-site))
+
 ;; (req-package yasnippet
 ;;   :diminish yas-minor-mode
 ;;   :config
@@ -1998,8 +2020,6 @@
 ;; :bind ("C-c d" . sdcv-search)
 (require 'unicad)
 
-(require 'ede-php-autoload-mode)
-(add-hook 'php-mode-hook 'ede-php-autoload-mode)
 ;; #+END_SRC
 
 ;; ** 完成配置
