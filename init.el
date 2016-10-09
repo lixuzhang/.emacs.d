@@ -1998,9 +1998,6 @@
 
 ;; (unless (package-installed-p 'r5rs)
 ;;   (package-install 'r5rs))
-;; (req-package rw-hunspell)
-;; (req-package rw-ispell)
-;; (req-package rw-language-and-country-codes)
 ;; #+END_SRC
 
 ;; ** 手工包
