@@ -2,7 +2,7 @@
 
 ;;; Header
 
-;; Copyright (C) 2016  李旭章
+;; Copyright (C) 2016, 2017  李旭章
 
 ;; Author: 李旭章 <lixuzhang@lovefeeling.org>
 ;; Keywords: local
@@ -444,15 +444,6 @@
 (req-package paren
   :init (setq show-paren-style 'expression)
   :config (show-paren-mode 1))
-
-;; 不知何故，总是引起 emacs 出错退出。
-;;; php-mode.el --- Major mode for editing PHP code
-(req-package php-mode
-  :mode "\\.php\\'"
-  :init (progn
-          (setq php-executable (executable-find "php"))
-          (setq php-template-compatibility nil))
-  :config (require 'php-ext))
 
 ;; saveplace.el --- automatically save place in files
 (req-package saveplace
@@ -1123,6 +1114,9 @@
             (require 'company-web-slim)
             (define-key web-mode-map (kbd "C-'") 'company-web-html)))
 
+(req-package composer)
+
+;; coverlay.el --- Test coverage overlays
 (req-package coverlay)
 
 ;; css-eldoc.el --- an eldoc-mode plugin for CSS source code
@@ -1199,7 +1193,7 @@
 
 ;; ede-php-autoload.el --- Simple EDE PHP Project
 (req-package ede-php-autoload
-  :requires ede)
+  :requires (ede php-mode))
 
 ;; electric-case.el --- insert camelCase, snake_case words without "Shift"ing
 (req-package electric-case
@@ -1562,6 +1556,9 @@
 (req-package ob-http
   :require org)
 
+(req-package ob-php
+  :require org)
+
 (req-package org-chinese-utils
   :require (org ox)
   :config (org-chinese-utils-enable))
@@ -1658,10 +1655,25 @@
 ;;; php-mode.el --- Major mode for editing PHP code
 (req-package php-mode
   :defer t
+  :mode "\\.php\\'"
   :init (progn
           (setq php-executable (executable-find "php"))
           (setq php-template-compatibility nil))
   :config (require 'php-ext))
+
+(req-package php-boris
+  :require php-mode)
+(req-package php-boris-minor-mode
+  :require (php-mode php-boris)
+  :config (add-hook 'php-mode-hook 'php-boris-minor-mode))
+(req-package php-eldoc
+  :require php-mode)
+(req-package php-extras
+  :require php-mode)
+(req-package php-refactor-mode
+  :require php-mode)
+(req-package phpunit
+  :require php-mode)
 
 (req-package pinyin-search)
 
@@ -1673,7 +1685,10 @@
   :config (global-pointback-mode))
 
 (req-package powerline
-  ;; :init (setq powerline-default-separator 'wave)
+  :disabled t
+  :init (progn
+          (setq powerline-default-separator 'wave)
+          (setq powerline-height 0.5))
   :config (powerline-default-theme))
 
 (req-package private-diary
@@ -1725,8 +1740,8 @@
                  (define-key region-bindings-mode-map "m" 'mc/mark-more-like-this-extended)))
 
 (req-package rw-language-and-country-codes)
-(req-package rw-hunspell)
 (req-package rw-ispell)
+(req-package rw-hunspell)
 
 ;; session.el --- use variables, registers and buffer places across sessions
 (req-package session
@@ -1831,7 +1846,7 @@
                     'append))
 
 (req-package web-mode
-  :mode ("\\.html?\\'" "\\.tpl\\'" "\\.tpla\\'" "\\.php\\'" "\\.phtml\\'"
+  :mode ("\\.html?\\'" "\\.tpl\\'" "\\.tpla\\'" "\\.phtml\\'"
          "\\.[agj]sp\\'" "\\.as[cp]x\\'" "\\.erb\\'" "\\.mustache\\'" "\\.djhtml\\'")
   :init (progn
           (setq web-mode-enable-auto-pairing              t)
