@@ -157,8 +157,9 @@
 ;; "
 
 ;; w32font.c --- Font backend for the Microsoft Windows API.
-(setq w32-charset-info-alist
-      (cons '("gbk" w32-charset-gb2312 . 936) w32-charset-info-alist))
+(when (string-equal system-type "windows-nt")
+  (setq w32-charset-info-alist
+        (cons '("gbk" w32-charset-gb2312 . 936) w32-charset-info-alist)))
 ;; #+END_SRC
 
 ;; *** Lisp
