@@ -579,6 +579,16 @@
             (require 'appt) ;; appt.el --- appointment notification functions
             (appt-activate t)))
 
+;; diary-lib.el --- diary functions
+(req-package diary-lib
+  :require calendar
+  :init (setq diary-remind-message
+              '("提醒：离"
+                diary-entry
+                "仅剩"
+                (if (zerop (% days 7))
+                    (format "%d周" (/ days 7))
+                  (format "%d天" days)))))
 
 ;; timeclock.el --- mode for keeping track of how much you work
 (req-package timeclock
@@ -1008,7 +1018,6 @@
 
 ;; calfw.el --- Calendar view framework on Emacs
 (req-package calfw
-  :defer t
   :init (setq cfw:event-format-location "\n  位置:    %s")
   :config (progn
             (require 'calfw-cal)
