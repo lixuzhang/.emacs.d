@@ -1,4 +1,4 @@
-﻿;;; init.el --- Emacs 配置文件                        -*- lexical-binding: t; -*-
+;;; init.el --- Emacs 配置文件                        -*- lexical-binding: t; -*-
 
 ;;; Header
 
@@ -69,37 +69,44 @@
 ;; https://en.wikipedia.org/wiki/Unicode_block
 ;; http://fonts.jp/hanazono/
 ;; 特定字符范围的字符集写法类似于：
-;; (cons (decode-char 'ucs #x0000) (decode-char 'ucs #xFFFF))
-;; (dolist (charset '(emacs nil))
-;;   (set-fontset-font t charset           ; 覆盖 CJK B/C/D/E
-;;                     (font-spec :family "HanaMinB")
-;;                     nil 'prepend)
-;;   (set-fontset-font t charset ; 覆盖非汉字、URO 及其扩展、CJK A、互换文字及其扩展
-;;                     (font-spec :family "HanaMinA")
-;;                     nil 'prepend)
-;;   (set-fontset-font t charset
-;;                     (font-spec :family "Noto Sans Mono CJK SC")
-;;                     nil 'prepend)
-;;   (set-fontset-font t charset
-;;                     (font-spec :family "思源黑体 Normal")
-;;                     nil 'prepend))
+;;     (cons (decode-char 'ucs #x0000) (decode-char 'ucs #xFFFF))
+(dolist (charset '(emacs nil))
+  (set-fontset-font t charset           ; 覆盖 CJK B/C/D/E
+                    (font-spec :family "HanaMinB")
+                    nil 'prepend)
+  (set-fontset-font t charset ; 覆盖非汉字、URO 及其扩展、CJK A、互换文字及其扩展
+                    (font-spec :family "HanaMinA")
+                    nil 'prepend)
+  (set-fontset-font t charset
+                    (font-spec :family "Noto Sans Mono CJK SC Regular")
+                    nil 'prepend)
+  ;; (set-fontset-font t charset
+  ;;                   (font-spec :family "思源黑体 Normal")
+  ;;                   nil 'prepend)
+  )
 
 ;; 标准字体
 (cond
  ;; Microsoft Windows
  ((string-equal system-type "windows-nt")
+  ;; 英文字体
   (if (member "Consolas" (font-family-list))
       (create-fontset-from-ascii-font
-       "-outline-Consolas-normal-normal-normal-mono-16-*-*-*-c-*-iso8859-1"
+       "-outline-Consolas-normal-normal-normal-mono-17-*-*-*-c-*-iso8859-1"
        nil "standard")
     (create-fontset-from-ascii-font
-     "-outline-Courier New-normal-normal-normal-mono-16-*-*-*-c-*-iso8859-1"
+     "-outline-Courier New-normal-normal-normal-mono-17-*-*-*-c-*-iso8859-1"
      nil "standard"))
+  ;; 中文字体
   (if (member "微软雅黑" (font-family-list))
       (set-fontset-font "fontset-standard" 'gb18030
-                        (font-spec :family "微软雅黑") nil 'prepend)
+                        (font-spec :family "微软雅黑" :size 11.0) nil 'prepend)
     (set-fontset-font "fontset-standard" 'gb18030
-                      (font-spec :family "新宋体") nil 'prepend)))
+                      (font-spec :family "新宋体" :size 11.0) nil 'prepend))
+  ;; 扩展字体
+  (when (member "SimSun-ExtB" (font-family-list))
+    (set-fontset-font "fontset-standard" 'gb18030
+                      (font-spec :family "SimSun-ExtB" :size 11.0) nil 'append)))
  ;; GNU/Linux
  ((string-equal system-type "gnu/linux")
   (create-fontset-from-fontset-spec
@@ -143,18 +150,18 @@
 ;;         ("HanaMinA" . 1.25)
 ;;         ("HanaMinB" . 1.25)))
 
-;; "
-;;   ========== face-font-rescale-alist ===== 效果测试 ==========
-;;   01|23|45|67|89|01|23|45|67|89|01|23|45|67|89|01|23|45|67|89|
-;;   零|一|二|三|四|五|六|七|八|九|零|一|二|三|四|五|六|七|八|九|
-;;   　|  正常字体    |  粗体        |   粗斜体        |
-;;   　|--------------+--------------+-----------------|
-;;   　|  堂堂正正    |  *五大三粗*  |   /东倒西歪/    |
-;;   　|  I'm normal. |  *I'm bold!* |   /I'm italic?/ |
-;;   　|  𠄀𠄁𠄂𠄃    |  *𠄄𠄅𠄆𠄇*  |   /𠄈𠄉𠄊𠄋/    |
-;;   零|一|二|三|四|五|六|七|八|九|零|一|二|三|四|五|六|七|八|九|
-;;   01|23|45|67|89|01|23|45|67|89|01|23|45|67|89|01|23|45|67|89|
-;; "
+"
+  ========== face-font-rescale-alist ===== 效果测试 ==========
+  01|23|45|67|89|01|23|45|67|89|01|23|45|67|89|01|23|45|67|89|
+  零|一|二|三|四|五|六|七|八|九|零|一|二|三|四|五|六|七|八|九|
+  　|  正常字体    |  粗体        |   粗斜体        |
+  　|--------------+--------------+-----------------|
+  　|  堂堂正正    |  *五大三粗*  |   /东倒西歪/    |
+  　|  I'm normal. |  *I'm bold!* |   /I'm italic?/ |
+  　|  𠄀𠄁𠄂𠄃    |  *𠄄𠄅𠄆𠄇*  |   /𠄈𠄉𠄊𠄋/    |
+  零|一|二|三|四|五|六|七|八|九|零|一|二|三|四|五|六|七|八|九|
+  01|23|45|67|89|01|23|45|67|89|01|23|45|67|89|01|23|45|67|89|
+"
 
 ;; w32font.c --- Font backend for the Microsoft Windows API.
 (when (string-equal system-type "windows-nt")
@@ -1043,8 +1050,9 @@
 (req-package chinese-fonts-setup
   :disabled t
   :init (progn
-          (setq cfs-use-face-font-rescale t)
-          (setq cfs-profiles '("general" "program" "other"))))
+          (setq cfs-use-face-font-rescale nil)
+          (setq cfs-profiles '("general" "program" "other")))
+  :config (chinese-fonts-setup-enable))
 
 ;; chinese-wbim.el --- Enable Wubi(五笔) Input Method in Emacs.
 (req-package chinese-wbim
@@ -1283,7 +1291,7 @@
   :init (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))
 
 (req-package flycheck-package
-  :require flycheck
+  :require (flycheck package-lint)
   :config (flycheck-package-setup))
 
 (req-package flycheck-pkg-config
@@ -1583,31 +1591,55 @@
   :require org
   :commands org-bullets-mode
   :init (progn
-          (setq org-bullets-bullet-list '("◉" "☯" "⁂" "❖" "✿"))
+          (setq org-bullets-bullet-list '("◉" "☯" "⁂" "❖" "✿" "❉"))
           (add-hook 'org-mode-hook 'org-bullets-mode)))
 
 (req-package org-doing
   :require org
   :init (setq org-doing-file "~/life/doing.org"))
 
-(req-package org-eww
-  :require (org eww))
-
 (req-package org-pomodoro
   :require org)
+
+(req-package org-present
+  :require org
+  :config (progn
+            (add-hook 'org-present-mode-hook
+                      (lambda ()
+                        (org-present-big)
+                        (org-display-inline-images)
+                        (org-present-hide-cursor)
+                        (org-present-read-only)))
+            (add-hook 'org-present-mode-quit-hook
+                      (lambda ()
+                        (org-present-small)
+                        (org-remove-inline-images)
+                        (org-present-show-cursor)
+                        (org-present-read-write)))))
+
+;; org-eww => org-preview-html
+(req-package org-preview-html
+  :require (org eww))
 
 (req-package org-projectile
   :require (org projectile)
   :bind (("C-c n p" . org-projectile:project-todo-completing-read))
   :init (progn
           (setq org-confirm-elisp-link-function nil)
-          (setq org-projectile:per-repo-filename "todo.org"))
+          (setq org-projectile:per-repo-filename "TODO.org"))
   :config (progn
             (add-to-list 'org-agenda-files
                          (org-projectile:todo-files))
             (add-to-list 'org-capture-templates
                          (org-projectile:project-todo-entry "p"))
             (org-projectile:per-repo)))
+
+;; org-repo-todo.el --- Simple repository todo management with org-mode
+(req-package org-repo-todo
+  :require org
+  :bind (("C-;" . ort/capture-todo)
+         ("C-'" . ort/capture-checkitem)
+         ("C-`" . ort/goto-todos)))
 
 ;; pangu-spacing.el --- Minor-mode to add space between Chinese and English characters.
 (req-package pangu-spacing
@@ -1688,8 +1720,11 @@
 (req-package pinyin-search)
 
 (req-package pkgbuild-mode
-  :init (setq auto-mode-alist
-              (append '(("/PKGBUILD$" . pkgbuild-mode)) auto-mode-alist)))
+  ;; :mode ("/PKGBUILD$" . pkgbuild-mode)
+  ;; :init
+  ;; (setq auto-mode-alist
+  ;;       (append '(("/PKGBUILD$" . pkgbuild-mode)) auto-mode-alist))
+  )
 
 (req-package pointback
   :config (global-pointback-mode))
@@ -1816,6 +1851,7 @@
   :config (global-undo-tree-mode))
 
 (req-package unicode-fonts
+  :disabled t
   :init (progn
           (setq unicode-fonts-fontset-names '("fontset-default"))
           (setq unicode-fonts-skip-font-groups
