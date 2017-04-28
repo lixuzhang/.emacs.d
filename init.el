@@ -59,7 +59,7 @@
 
 
 ;; fontset.c --- Fontset handler.
-;; 在 emacs 默认的字体设置之前添加“思源黑体”、“花园明体”作为默认字体
+;; 在 emacs 默认的字体设置之前添加“Noto”、“花园明体”作为默认字体
 ;; 所有 Script 清单可通过 (char-table-extra-slot char-script-table 0) 获取
 ;; Script 表 http://www.unicode.org/charts/
 ;; 列出字符集命令：list-charset-chars
@@ -80,10 +80,9 @@
   (set-fontset-font t charset
                     (font-spec :family "Noto Sans Mono CJK SC Regular")
                     nil 'prepend)
-  ;; (set-fontset-font t charset
-  ;;                   (font-spec :family "思源黑体 Normal")
-  ;;                   nil 'prepend)
-  )
+  (set-fontset-font t charset
+                    (font-spec :family "Symbola")
+                    nil 'prepend))
 
 ;; 标准字体
 (cond
@@ -100,13 +99,14 @@
   ;; 中文字体
   (if (member "微软雅黑" (font-family-list))
       (set-fontset-font "fontset-standard" 'gb18030
-                        (font-spec :family "微软雅黑" :size 11.0) nil 'prepend)
+                        (font-spec :family "微软雅黑" :size 18)
+                        nil 'prepend)
     (set-fontset-font "fontset-standard" 'gb18030
-                      (font-spec :family "新宋体" :size 11.0) nil 'prepend))
+                      (font-spec :family "新宋体" :size 18) nil 'prepend))
   ;; 扩展字体
   (when (member "SimSun-ExtB" (font-family-list))
     (set-fontset-font "fontset-standard" 'gb18030
-                      (font-spec :family "SimSun-ExtB" :size 11.0) nil 'append)))
+                      (font-spec :family "SimSun-ExtB" :size 18) nil 'append)))
  ;; GNU/Linux
  ((string-equal system-type "gnu/linux")
   (create-fontset-from-fontset-spec
@@ -121,9 +121,12 @@
 ;; 只有本设置才对窗口显示字体起作用，set-face-attribute、set-face-font 和
 ;; set-frame-font 均不起作用。
 (setq default-frame-alist
-      '((font .  "fontset-standard")
+      '((fullscreen . fullboth)
+        (font .  "fontset-standard")
+        (menu-bar-lines . nil)
+        (vertical-scroll-bars . nil)
         ;; (alpha . (85 50))
-        (fullscreen . fullboth)))
+        ))
 (setq make-pointer-invisible nil)
 
 ;; indent.c --- Indentation functions.
@@ -203,8 +206,8 @@
 ;;; emacs-lisp
 
 ;; advice.el --- An overloading mechanism for Emacs Lisp functions
-(require 'advice)
 (setq ad-redefinition-action 'accept)
+(require 'advice)
 
 ;; copyright.el --- update the copyright notice in current buffer
 (require 'copyright)
@@ -247,8 +250,8 @@
 (require 'apropos)
 
 ;; cus-edit.el --- tools for customizing Emacs and Lisp packages
-(require 'cus-edit)
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(require 'cus-edit)
 
 ;; custom.el --- tools for declaring and initializing options
 (require 'custom)
@@ -265,10 +268,10 @@
 ;; faces.el --- Lisp faces
 (require 'faces)
 ;; 要有本句才能对 tooltip 窗口的字体生效。
-(set-face-font 'default "fontset-standard")
+;; (set-face-font 'default "fontset-standard")
+(set-face-attribute 'default nil :font "fontset-standard")
 
 ;; files.el --- file input and output commands for Emacs
-(require 'files)
 (setq-default require-final-newline t)
 (setq find-file-suppress-same-file-warnings t)
 (setq auto-save-file-name-transforms
@@ -277,12 +280,16 @@
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-default nil)
 (setq make-backup-files nil)
+(require 'files)
 (add-hook 'before-save-hook 'copyright-update)
 
+
 ;; frame.el --- multi-frame management independent of window systems
+(setq initial-frame-alist default-frame-alist)
+(setq minibuffer-frame-alist '((font .  "fontset-standard")))
 (require 'frame)
 ;; (blink-cursor-mode 1)
-;; (set-frame-font "fontset-standard" nil t)  ; 不起作用
+;; (set-frame-font "fontset-standard" nil t)  ; 不起作用?
 
 ;; menu-bar.el --- define a default menu bar
 ;; (require 'menu-bar)
@@ -485,7 +492,7 @@
 ;; time.el --- display time, load and mail indicator in mode line of Emacs
 (req-package time
   :init (progn
-          (setq display-time-use-mail-icon t) ; Unicode Mail ✉
+          (setq display-time-use-mail-icon t)
           (setq display-time-24hr-formatxk t)
           (setq display-time-day-and-date nil)
           (setq display-time-default-load-average nil))
@@ -523,8 +530,7 @@
                 ["星期日" "星期一" "星期二" "星期三" "星期四" "星期五" "星期六"])
           (setq calendar-day-abbrev-array
                 ["周日" "周一" "周二" "周三" "周四" "周五" "周六"])
-          (setq calendar-day-header-array
-                ;; ["日" "月" "火" "水" "木" "金" "土"]
+          (setq calendar-day-header-array ;; ["日" "月" "火" "水" "木" "金" "土"]
                 ["日" "一" "二" "三" "四" "五" "六"])
           ;; Month
           (setq calendar-month-name-array
@@ -539,7 +545,7 @@
           (setq calendar-mark-diary-entries-flag t)
           (setq calendar-mark-holidays-flag t)
           ;; lunar.el --- calendar functions for phases of the moon
-          (setq lunar-phase-names '("新月" "上弦月☽" "满月" "下弦月☾"))
+          (setq lunar-phase-names '("🌑" "🌓" "🌕" "🌗"))
           ;; holidays.el --- holiday functions for the calendar package
           (setq calendar-chinese-celestial-stem   ; 天干
                 ["甲" "乙" "丙" "丁" "戊" "已" "庚" "辛" "壬" "癸"])
@@ -547,7 +553,7 @@
                 ["子" "丑" "寅" "卯" "辰" "巳" "午" "未" "申" "酉" "戌" "亥"])
           (setq calendar-chinese-month-name-array
                 ["正月" "二月" "三月" "四月" "五月" "六月" "七月" "八月" "九月" "十月" "冬月" "腊月"])
-          (setq holiday-general-holidays
+          (setq holiday-general-holidays ; 法定节假日
                 '((holiday-fixed 1 1 "新年")
                   (holiday-fixed 3 8 "妇女节")
                   (holiday-fixed 5 1 "劳动节")
@@ -688,42 +694,41 @@
           ;; 任务管理
           (setq org-directory "~/life")
           (setq org-default-notes-file remember-data-file) ; 备忘录
-          (setq org-agenda-files '("~/life/study.org"
-                                   "~/life/health.org"
-                                   "~/life/wealth.org"
-                                   "~/life/family.org"
-                                   "~/life/business.org"
-                                   "~/life/society.org"))
+          (setq org-agenda-files '("~/life/"))
           (setq org-enforce-todo-dependencies t)
           (setq org-track-ordered-property-with-tag t)
           (setq org-todo-keywords
-                '((type "私人(p!)" "家庭(f!)" "工作(w!)" "|")
-                  (sequence "待办(t)" "下一步(n)" "|" "结束(d)")
-                  (sequence "等候(w@/!)" "暂缓(h@/!)" "|" "取消(c@/!)" "电话" "会议")))
+                '((type "🗁PROJECT(P)" "🗲ACTION(A)" "🗒SOMEDAY/MAYBE(S)" "🛈REFERENCE(R)" "🚮TRASH(T)") ; 任务分类
+                  (sequence "☐TODO(t)" "📆SCHEDULED(s)" "◯HOLD(h@/!)" "⭙NEXT(n@/!)" "⬤WAITING(w@/!)" "✆PHONE(p/!)" "🗫MEETING(m/!)" "|" "☒CANCELED(c@/!)" "☑DONE(d)") ; 执行状态
+                  ))
           (setq org-todo-keyword-faces
-                '(("待办" :foreground "red" :weight bold)
-                  ("下一步" :foreground "blue" :weight bold)
-                  ("结束" :foreground "forest green" :weight bold)
-                  ("等候" :foreground "orange" :weight bold)
-                  ("暂缓" :foreground "magenta" :weight bold)
-                  ("取消" :foreground "forest green" :weight bold)
-                  ("电话" :foreground "forest green" :weight bold)
-                  ("会议" :foreground "forest green" :weight bold)))
+                '(("☐TODO" :foreground "red" :weight bold)
+                  ("📆SCHEDULED" :foreground "blue" :weight bold)
+                  ("◯HOLD" :foreground "magenta" :weight bold)
+                  ("⭙NEXT" :foreground "blue" :weight bold)
+                  ("⬤WAITING" :foreground "orange" :weight bold)
+                  ("✆PHONE" :foreground "forest green" :weight bold)
+                  ("🗫MEETING" :foreground "forest green" :weight bold) ;🤝
+                  ("☒CANCELED" :foreground "forest green" :weight bold)
+                  ("☑DONE" :foreground "forest green" :weight bold)
+                  ))
           (setq org-use-fast-todo-selection t)
           (setq org-treat-S-cursor-todo-selection-as-state-change nil)
           (setq org-todo-state-tags-triggers
-                '(("取消" ("取消" . t))
-                  ("等候" ("等候" . t))
-                  ("暂缓" ("等候") ("暂缓" . t))
-                  (done ("等候") ("暂缓"))
-                  ("待办" ("等候") ("取消") ("暂缓"))
-                  ("下一步" ("等候") ("取消") ("暂缓"))
-                  ("结束" ("等候") ("取消") ("暂缓"))))
+                '(("🗁PROJECT" ("🗁" . t) ("🗲") ("🗒") ("🛈") ("🚮") ("⏳") ("🏳"))
+                  ("🗲ACTION" ("🗁") ("🗲" . t) ("🗒") ("🛈") ("🚮") ("⏳") ("🏳"))
+                  ("🗒SOMEDAY/MAYBE" ("🗁") ("🗲") ("🗒" . t) ("🛈") ("🚮") ("⏳") ("🏳"))
+                  ("🛈REFERENCE"  ("🗁") ("🗲") ("🗒") ("🛈" . t) ("🚮") ("⏳") ("🏳"))
+                  ("🚮TRASH" ("🗁") ("🗲") ("🗒") ("🛈") ("🚮" . t) ("⏳") ("🏳"))
+                  ("⬤WAITING" ("⏳"))
+                  (todo ("🗁") ("🗲") ("🗒") ("🛈") ("🚮") ("🏳"))
+                  (done ("🗁") ("🗲") ("🗒") ("🛈") ("🚮") ("⏳") ("🏳" . t))
+                  ))
           (setq org-tag-alist
-                '((:startgroup . nil)
-                  ("@家庭" . ?h) ("@工作" . ?w)
-                  (:endgroup . nil)
-                  ("电脑" . ?c)))
+                '((:startgroup) ("🏠" . ?h) ("🏢" . ?o) ("🛒" . ?m) ("🚌" . ?w) (:endgroup) ; 情境
+                  (:startgroup) ("💻" . ?c) ("📱" . ?p) (:endgroup) ; 工具
+                  (:startgroup) ("🏷" . ?b) ("🎔" . ?f) ("󳊙" . ?s) (:endgroup)
+                  ))
           (setq org-tags-exclude-from-inheritance
                 '("项目" "加密"))
           (setq org-fontify-done-headline t)
@@ -732,19 +737,25 @@
           ;; Latex 输出
           (setq org-latex-create-formula-image-program 'imagemagick)
           (setq org-latex-default-packages-alist
-                '(("" "fixltx2e" nil)
+                '(("AUTO" "inputenc" t
+                   ("pdflatex"))
+                  ("T1" "fontenc" t
+                   ("pdflatex"))
                   ("" "graphicx" t)
+                  ("" "grffile" t)
                   ("" "longtable" nil)
-                  ("" "float" nil)
                   ("" "wrapfig" nil)
                   ("" "rotating" nil)
                   ("normalem" "ulem" t)
                   ("" "amsmath" t)
                   ("" "textcomp" t)
+                  ("" "amssymb" t)
+                  ("" "capt-of" nil)
+                  ("colorlinks" "hyperref" nil)
+                  ("" "fixltx2e" nil)
+                  ("" "float" nil)
                   ("" "marvosym" t)
                   ("" "wasysym" t)
-                  ("" "amssymb" t)
-                  ("colorlinks" "hyperref" nil)
                   "\\tolerance=1000"))
           (setq org-latex-packages-alist
                 '(("" "ctex" t) ;使用 CTEX 实现中文支持
@@ -978,6 +989,8 @@
          ("C-M-%" . anzu-query-replace-regexp))
   :config (global-anzu-mode))
 
+(req-package apache-mode)
+
 ;; artbollocks-mode.el --- Improve your writing (especially about art)
 (req-package artbollocks-mode
   :commands artbollocks-mode
@@ -1051,7 +1064,9 @@
   :disabled t
   :init (progn
           (setq cfs-use-face-font-rescale nil)
-          (setq cfs-profiles '("general" "program" "other")))
+          (setq cfs-profiles '("general" "program" "other"))
+          (setq cfs--current-profile "general")
+          (setq cfs--profiles-steps '(("general" . 4))))
   :config (chinese-fonts-setup-enable))
 
 ;; chinese-wbim.el --- Enable Wubi(五笔) Input Method in Emacs.
@@ -1584,6 +1599,9 @@
 (req-package ox-bibtex-chinese
   :require org)
 
+(req-package org-brain
+  :require org)
+
 (req-package ox-latex-chinese
   :require org)
 
@@ -1591,7 +1609,7 @@
   :require org
   :commands org-bullets-mode
   :init (progn
-          (setq org-bullets-bullet-list '("◉" "☯" "⁂" "❖" "✿" "❉"))
+          (setq org-bullets-bullet-list '("◉" "☯" "🍁" "🍀" "⚝" "🔯" "🌼")) ; ⁂❖🌸🏵🏶✿❉
           (add-hook 'org-mode-hook 'org-bullets-mode)))
 
 (req-package org-doing
@@ -1719,12 +1737,7 @@
 
 (req-package pinyin-search)
 
-(req-package pkgbuild-mode
-  ;; :mode ("/PKGBUILD$" . pkgbuild-mode)
-  ;; :init
-  ;; (setq auto-mode-alist
-  ;;       (append '(("/PKGBUILD$" . pkgbuild-mode)) auto-mode-alist))
-  )
+(req-package pkgbuild-mode)
 
 (req-package pointback
   :config (global-pointback-mode))
@@ -1858,13 +1871,12 @@
                 '(buggy-before-vista decorative low-quality-glyphs multicolor non-free)))
   :config (unicode-fonts-setup))
 
-;; (req-package unicode-whitespace
-;;   :config (unicode-whitespace-setup 'subdued-faces))
+(req-package unicode-whitespace)
 
 (req-package vala-mode)
 
 (req-package voca-builder
-  :init (setq voca-builder/voca-file "~/org/vocabulary.org"
+  :init (setq voca-builder/voca-file "~/life/vocabulary.org"
               voca-builder/current-tag "default"))
 
 ;; volatile-highlights.el --- Minor mode for visual feedback on some operations.
