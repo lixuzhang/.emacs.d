@@ -699,38 +699,39 @@
           (setq org-track-ordered-property-with-tag t)
           (setq org-todo-keywords
                 '((type "🗁PROJECT(P)" "🗲ACTION(A)" "🗒SOMEDAY/MAYBE(S)" "🛈REFERENCE(R)" "🚮TRASH(T)") ; 任务分类
-                  (sequence "☐TODO(t)" "📆SCHEDULED(s)" "◯HOLD(h@/!)" "⭙NEXT(n@/!)" "⬤WAITING(w@/!)" "✆PHONE(p/!)" "🗫MEETING(m/!)" "|" "☒CANCELED(c@/!)" "☑DONE(d)") ; 执行状态
+                  (sequence "☐(t)" "◯(h@/!)" "⭙(n@/!)" "⏳(w@/!)" "📆(s)" "✆(p/!)" "🗫(m/!)" "|" "☒(c@/!)" "☑(d)") ; 执行状态
                   ))
           (setq org-todo-keyword-faces
-                '(("☐TODO" :foreground "red" :weight bold)
-                  ("📆SCHEDULED" :foreground "blue" :weight bold)
-                  ("◯HOLD" :foreground "magenta" :weight bold)
-                  ("⭙NEXT" :foreground "blue" :weight bold)
-                  ("⬤WAITING" :foreground "orange" :weight bold)
-                  ("✆PHONE" :foreground "forest green" :weight bold)
-                  ("🗫MEETING" :foreground "forest green" :weight bold) ;🤝
-                  ("☒CANCELED" :foreground "forest green" :weight bold)
-                  ("☑DONE" :foreground "forest green" :weight bold)
+                '(("☐" :foreground "red" :weight bold)
+                  ("◯" :foreground "magenta" :weight bold)
+                  ("⭙" :foreground "blue" :weight bold)
+                  ("⏳" :foreground "orange" :weight bold)
+                  ("📆" :foreground "blue" :weight bold)
+                  ("✆" :foreground "forest green" :weight bold)
+                  ("🗫" :foreground "forest green" :weight bold)
+                  ("☒" :foreground "forest green" :weight bold)
+                  ("☑" :foreground "forest green" :weight bold)
                   ))
           (setq org-use-fast-todo-selection t)
-          (setq org-treat-S-cursor-todo-selection-as-state-change nil)
-          (setq org-todo-state-tags-triggers
-                '(("🗁PROJECT" ("🗁" . t) ("🗲") ("🗒") ("🛈") ("🚮") ("⏳") ("🏳"))
-                  ("🗲ACTION" ("🗁") ("🗲" . t) ("🗒") ("🛈") ("🚮") ("⏳") ("🏳"))
-                  ("🗒SOMEDAY/MAYBE" ("🗁") ("🗲") ("🗒" . t) ("🛈") ("🚮") ("⏳") ("🏳"))
-                  ("🛈REFERENCE"  ("🗁") ("🗲") ("🗒") ("🛈" . t) ("🚮") ("⏳") ("🏳"))
-                  ("🚮TRASH" ("🗁") ("🗲") ("🗒") ("🛈") ("🚮" . t) ("⏳") ("🏳"))
-                  ("⬤WAITING" ("⏳"))
-                  (todo ("🗁") ("🗲") ("🗒") ("🛈") ("🚮") ("🏳"))
-                  (done ("🗁") ("🗲") ("🗒") ("🛈") ("🚮") ("⏳") ("🏳" . t))
-                  ))
+          (setq org-treat-S-cursor-todo-selection-as-state-change t)
+          ;; (setq org-todo-state-tags-triggers
+          ;;       '(("🗁PROJECT" ("🗁" . t) ("🗲") ("🗒") ("🛈") ("🚮") ("🏳") ("⏳"))
+          ;;         ("🗲ACTION" ("🗁") ("🗲" . t) ("🗒") ("🛈") ("🚮") ("🏳") ("⏳"))
+          ;;         ("🗒SOMEDAY/MAYBE" ("🗁") ("🗲") ("🗒" . t) ("🛈") ("🚮") ("🏳") ("⏳"))
+          ;;         ("🛈REFERENCE"  ("🗁") ("🗲") ("🗒") ("🛈" . t) ("🚮") ("🏳") ("⏳"))
+          ;;         ("🚮TRASH" ("🗁") ("🗲") ("🗒") ("🛈") ("🚮" . t) ("🏳") ("⏳"))
+          ;;         ("⏳WAITING" ("⏳" . t))
+          ;;         (todo ("🗁") ("🗲") ("🗒") ("🛈") ("🚮") ("🏳") ("⏳"))
+          ;;         (done ("🗁") ("🗲") ("🗒") ("🛈") ("🚮") ("🏳") ("⏳"))
+          ;;         ))
           (setq org-tag-alist
-                '((:startgroup) ("🏠" . ?h) ("🏢" . ?o) ("🛒" . ?m) ("🚌" . ?w) (:endgroup) ; 情境
+                '((:startgroup) ("🗁" . ?P) ("🗲" . ?A) ("🗒" . ?M) ("🛈" . ?R) ("🚮" . ?X) (:endgroup) ; 类型
+                  (:startgroup) ("🏠" . ?h) ("🏢" . ?o) ("🛒" . ?m) ("🚌" . ?w) (:endgroup) ; 情境
                   (:startgroup) ("💻" . ?c) ("📱" . ?p) (:endgroup) ; 工具
-                  (:startgroup) ("🏷" . ?b) ("🎔" . ?f) ("󳊙" . ?s) (:endgroup)
+                  (:startgroup) ("🏷" . ?b) ("🎔" . ?f) ("󳊙" . ?s) (:endgroup) ; 性质
                   ))
           (setq org-tags-exclude-from-inheritance
-                '("项目" "加密"))
+                '("🗁" "󳊙"))
           (setq org-fontify-done-headline t)
           ;; 代码着色
           (setq org-src-fontify-natively t)
@@ -767,7 +768,8 @@
                                            (ditaa . t)
                                            (dot . t)
                                            (python . t)
-                                           (scheme . t)))
+                                           (scheme . t)
+                                           (lilypond t)))
 
             ;; ob-core.el --- working with code blocks in org-mode
             (setq org-confirm-babel-evaluate nil)
@@ -1506,20 +1508,22 @@
   :diminish hungry-delete-mode
   :config (global-hungry-delete-mode))
 
+;; ido-completing-read+.el --- A completing-read-function using ido
+(req-package ido-completing-read+
+  :require ido
+  :config (ido-ubiquitous-mode 1))
+
 ;; idomenu.el --- imenu tag selection a la ido
 (req-package idomenu
   :require ido)
-
-;; ido-ubiquitous.el --- Use ido (nearly) everywhere.
-(req-package ido-ubiquitous
-  :require ido
-  :config (ido-ubiquitous-mode 1))
 
 (req-package iedit
   :bind ("C-;" . iedit-mode))
 
 (req-package import-js
   :functions import-js-import import-js-goto)
+
+(req-package indium)
 
 (req-package interleave
   :defer t)
@@ -1616,6 +1620,10 @@
   :require org
   :init (setq org-doing-file "~/life/doing.org"))
 
+(req-package org-edna
+  :require org
+  :config (org-edna-load))
+
 (req-package org-pomodoro
   :require org)
 
@@ -1658,6 +1666,9 @@
   :bind (("C-;" . ort/capture-todo)
          ("C-'" . ort/capture-checkitem)
          ("C-`" . ort/goto-todos)))
+
+(req-package org-time-budgets
+  :require org)
 
 ;; pangu-spacing.el --- Minor-mode to add space between Chinese and English characters.
 (req-package pangu-spacing
@@ -2065,10 +2076,6 @@
 ;;           (add-hook 'org-shiftdown-final-hook 'windmove-down)
 ;;           (add-hook 'org-shiftright-final-hook 'windmove-right)))
 
-;; (req-package workgroups2
-;;   :diminish workgroups-mode
-;;   :config  (workgroups-mode 1))
-
 ;; (unless (package-installed-p 'r5rs)
 ;;   (package-install 'r5rs))
 ;; #+END_SRC
@@ -2089,6 +2096,12 @@
 (require 'sdcv-mode)
 ;; :bind ("C-c d" . sdcv-search)
 (require 'unicad)
+
+(autoload 'LilyPond-mode "lilypond-mode")
+(setq auto-mode-alist
+      (cons '("\\.ly$" . LilyPond-mode) auto-mode-alist))
+(add-hook 'LilyPond-mode-hook (lambda () (turn-on-font-lock)))
+
 
 ;; #+END_SRC
 
