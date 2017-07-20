@@ -1040,17 +1040,28 @@
 
 ;; calfw.el --- Calendar view framework on Emacs
 (req-package calfw
-  :init (setq cfw:event-format-location "\n  位置:    %s")
-  :config (progn
-            (require 'calfw-cal)
-            (require 'calfw-org)
-            (setq cfw:org-agenda-schedule-args '(:timestamp))
-            (setq cfw:org-overwrite-default-keybinding t)
+  :init (progn
+          (setq cfw:event-format-location "\n  位置:    %s")
+          ;; 重定义
+          (defun calendar ()
+            (interactive)
             (cfw:open-calendar-buffer
              :contents-sources
-             (list (cfw:org-create-source "Green")  ; orgmode source
-                   (cfw:cal-create-source "Orange") ; diary source
-                   ))))
+             (list
+              (cfw:cal-create-source "Orange") ; diary source
+              (cfw:org-create-source "Green")  ; orgmode source
+              )))))
+
+;; calfw-cal.el --- calendar view for emacs diary
+(req-package calfw-cal
+  :require calfw)
+
+;; calfw-org.el --- calendar view for org-agenda
+(req-package calfw-org
+  :require calfw
+  :init (progn
+          (setq cfw:org-agenda-schedule-args '(:timestamp))
+          (setq cfw:org-overwrite-default-keybinding t)))
 
 ;; c-eldoc.el --- helpful description of the arguments to C functions
 (req-package c-eldoc
@@ -1228,7 +1239,17 @@
 
 ;; ede-php-autoload.el --- Simple EDE PHP Project
 (req-package ede-php-autoload
-  :requires (ede php-mode))
+  :requires (ede php-mode)
+  :init (progn
+          (add-hook 'php-mode-hook 'ede-php-autoload-mode)))
+
+;; ede-php-autoload-composer-installers.el --- Composer installers support for ede-php-autoload
+(req-package ede-php-autoload-composer-installers
+  :require ede-php-autoload)
+
+;; ede-php-autoload-drupal.el --- Drupal support for ede-php-autoload
+(req-package ede-php-autoload-drupal
+  :require ede-php-autoload)
 
 ;; electric-case.el --- insert camelCase, snake_case words without "Shift"ing
 (req-package electric-case
