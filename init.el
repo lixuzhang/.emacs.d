@@ -882,11 +882,11 @@
   :init (add-hook 'prog-mode-hook 'hs-minor-mode))
 
 ;; python.el --- Python's flying circus support for Emacs
-;; (req-package python
-;;   :init (progn
-;;           (setq python-skeleton-autoinsert t)
-;;           (when (executable-find "python3")
-;;             (setq python-shell-interpreter "python3"))))
+(req-package python
+  :init (progn
+          (setq python-skeleton-autoinsert t)
+          (when (executable-find "python3")
+            (setq python-shell-interpreter "python3"))))
 
 ;; scheme.el --- Scheme (and DSSSL) editing mode
 (req-package scheme
