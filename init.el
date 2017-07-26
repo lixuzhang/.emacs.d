@@ -52,6 +52,7 @@
 
 ;; edfns.c --- Lisp functions pertaining to editing.
 (put 'narrow-to-region 'disabled nil)
+(put 'narrow-to-page 'disabled nil)
 
 ;; fns.c --- Random utility Lisp functions.
 (setq use-file-dialog nil)
@@ -347,10 +348,10 @@
 ;; (require 'bind-key)
 ;; (require 'diminish)
 ;; (setq use-package-always-ensure t)
-;; (setq use-package-debug t)
+(setq use-package-debug t)
 (setq use-package-verbose t)
-;; (eval-when-compile
-;;   (require 'use-package))
+(eval-when-compile
+  (require 'use-package))
 (setq req-package-log-level 'error)
 (require 'req-package)
 ;; #+END_SRC
@@ -500,7 +501,7 @@
 
 ;; time-stamp.el --- Maintain last change time stamps in files edited by Emacs
 (req-package time-stamp
-  :commands time-stamp
+  :functions time-stamp
   :init (progn
           (setq time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S %Z %U")
           (add-hook 'before-save-hook 'time-stamp)))
@@ -866,7 +867,7 @@
 
 ;; executable.el --- base functionality for executable interpreter scripts
 (req-package executable
-  :commands executable-make-buffer-file-executable-if-script-p
+  :functions executable-make-buffer-file-executable-if-script-p
   :init (add-hook 'after-save-hook
                   'executable-make-buffer-file-executable-if-script-p))
 
@@ -877,7 +878,7 @@
           (setq gdb-show-main t)))
 
 (req-package hideshow
-  :commands hs-minor-mode
+  :functions hs-minor-mode
   :diminish hs-minor-mode
   :init (add-hook 'prog-mode-hook 'hs-minor-mode))
 
@@ -925,7 +926,7 @@
 
 ;; flyspell.el --- On-the-fly spell checker
 (req-package flyspell
-  :commands (turn-on-flyspell flyspell-prog-mode)
+  :functions (turn-on-flyspell flyspell-prog-mode)
   :require ispell
   :diminish flyspell-mode
   :init (when (executable-find ispell-program-name)
@@ -970,7 +971,7 @@
 (req-package ac-html-csswatcher)
 
 (req-package aggressive-fill-paragraph
-  :disabled t
+  :defer t
   :config (afp-setup-recommended-hooks))
 
 ;; aggressive-indent.el --- Minor mode to aggressively keep your code always indented
@@ -995,7 +996,7 @@
 
 ;; artbollocks-mode.el --- Improve your writing (especially about art)
 (req-package artbollocks-mode
-  :commands artbollocks-mode
+  :functions artbollocks-mode
   :diminish artbollocks-mode
   :init (progn
           (setq artbollocks-weasel-words-regex
@@ -1066,7 +1067,7 @@
 ;; c-eldoc.el --- helpful description of the arguments to C functions
 (req-package c-eldoc
   :defer t
-  :commands c-turn-on-eldoc-mode
+  :functions c-turn-on-eldoc-mode
   :init (progn
           (setq c-eldoc-cpp-command "cpp")
           (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode)
@@ -1129,6 +1130,7 @@
 
 (req-package company-c-headers
   :require company
+  :functions company-c-headers
   :init (add-to-list 'company-backends 'company-c-headers))
 
 (req-package company-flx
@@ -1140,7 +1142,10 @@
 
 (req-package company-php
   :require (company php)
-  :init (add-to-list 'company-backends 'company-ac-php-backend))
+  :functions company-ac-php-backend
+  :init (add-hook 'php-mode-hook
+                  '(lambda ()
+                     (add-to-list 'company-backends 'company-ac-php-backend))))
 
 (req-package company-quickhelp
   :require company)
@@ -1215,10 +1220,10 @@
 
 ;; ecb.el --- a code browser for Emacs
 (req-package ecb
-  :disabled t
+  :defer t
   :init (progn
           (setq ecb-version-check nil)
-          (setq ecb-auto-activate t)
+          ;; (setq ecb-auto-activate t)
           (setq ecb-compile-window-height 8)
           (setq ecb-compile-window-temporally-enlarge 'both)
           (setq ecb-compile-window-width 'edit-window)
@@ -1239,6 +1244,7 @@
 
 ;; ede-php-autoload.el --- Simple EDE PHP Project
 (req-package ede-php-autoload
+  :defer t
   :requires (ede php-mode)
   :init (progn
           (add-hook 'php-mode-hook 'ede-php-autoload-mode)))
@@ -1253,10 +1259,10 @@
 
 ;; electric-case.el --- insert camelCase, snake_case words without "Shift"ing
 (req-package electric-case
-  :commands (electric-case-ahk-init
-             electric-case-c-init
-             electric-case-java-init
-             electric-case-scala-init)
+  :functions (electric-case-ahk-init
+              electric-case-c-init
+              electric-case-java-init
+              electric-case-scala-init)
   :init (progn
           (add-hook 'ahk-mode-hook 'electric-case-ahk-init)
           (add-hook 'c-mode-hook 'electric-case-c-init)
@@ -1266,7 +1272,6 @@
 ;; electric-operator.el --- Automatically add spaces around operators
 ;; 发展过程：smart-operator => electric-spacing => electric-operator
 (req-package electric-operator
-  :commands electric-operator-mode
   :config (progn
             (apply 'electric-operator-add-rules-for-mode 'php-mode
                    electric-operator-prog-mode-rules)
@@ -1325,7 +1330,7 @@
 
 (req-package flycheck-color-mode-line
   :require flycheck
-  :commands flycheck-color-mode-line
+  :functions flycheck-color-mode-line
   :init (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))
 
 (req-package flycheck-package
@@ -1345,8 +1350,7 @@
   :init (setq geiser-default-implementation scheme-program-name))
 
 (req-package ggtags
-  :defer t
-  :commands ggtags-mode
+  :functions ggtags-mode
   :init (progn
           (setq gtags-suggested-key-mapping t)
           (add-hook 'c-mode-common-hook
@@ -1365,7 +1369,7 @@
 
 (req-package git-messenger
   :require magit
-  :commands (git-messenger:copy-message git-messenger:popup-message)
+  :functions (git-messenger:copy-message git-messenger:popup-message)
   :bind (("C-x v p" . git-messenger:popup-message))
   :config (progn
             (define-key git-messenger-map (kbd "m") 'git-messenger:copy-message)
@@ -1404,8 +1408,7 @@
             (golden-ratio-mode 1)))
 
 (req-package google-c-style
-  :defer t
-  :commands (google-set-c-style google-make-newline-indent)
+  :functions (google-set-c-style google-make-newline-indent)
   :init (progn
           (add-hook 'c-mode-common-hook 'google-set-c-style)
           (add-hook 'c-mode-common-hook 'google-make-newline-indent)))
@@ -1458,7 +1461,7 @@
 ;; helm-gtags.el --- GNU GLOBAL helm interface
 (req-package helm-gtags
   :require (helm ggtags)
-  :commands helm-gtags-mode
+  :functions helm-gtags-mode
   :bind (("C-c g a" . helm-gtags-tags-in-this-function)
          ("C-j"     . helm-gtags-select)
          ("M-."     . helm-gtags-dwim)
@@ -1515,12 +1518,12 @@
 
 ;; hideshow-org.el --- Provides org-mode like hide and show for hideshow.el
 (req-package hideshow-org
-  :commands hs-org/minor-mode
+  :functions hs-org/minor-mode
   :init (add-hook 'prog-mode-hook 'hs-org/minor-mode))
 
 ;; hideshowvis.el --- Add markers to the fringe for regions foldable by hideshow.el
 (req-package hideshowvis
-  :commands hideshowvis-enable
+  :functions hideshowvis-enable
   :init (add-hook 'prog-mode-hook 'hideshowvis-enable)
   :config (hideshowvis-symbols))
 
@@ -1550,6 +1553,7 @@
   :defer t)
 
 (req-package jdee
+  :defer t
   :require ecb)
 
 ;; inferior-js-mode
@@ -1632,7 +1636,7 @@
 
 (req-package org-bullets
   :require org
-  :commands org-bullets-mode
+  :functions org-bullets-mode
   :init (progn
           (setq org-bullets-bullet-list '("◉" "☯" "🍁" "🍀" "⚝" "🔯" "🌼")) ; ⁂❖🌸🏵🏶✿❉
           (add-hook 'org-mode-hook 'org-bullets-mode)))
@@ -1693,14 +1697,14 @@
 
 ;; pangu-spacing.el --- Minor-mode to add space between Chinese and English characters.
 (req-package pangu-spacing
-  :commands pangu-spacing-mode
+  :functions pangu-spacing-mode
   :diminish pangu-spacing-mode
   :init (progn
           (setq pangu-spacing-real-insert-separtor t)
           (add-hook 'text-mode-hook 'pangu-spacing-mode)))
 
 (req-package paredit
-  :commands enable-paredit-mode
+  :functions enable-paredit-mode
   :diminish paredit-mode
   :init (progn
           (add-hook 'lisp-mode-hook 'enable-paredit-mode)
@@ -1709,14 +1713,14 @@
           (add-hook 'clojure-mode-hook 'enable-paredit-mode)))
 
 (req-package paredit-everywhere
-  :commands paredit-everywhere-mode
+  :functions paredit-everywhere-mode
   :diminish paredit-everywhere-mode
   :init (progn
           (add-hook 'prog-mode-hook 'paredit-everywhere-mode)
           (add-hook 'css-mode-hook 'paredit-everywhere-mode)))
 
 (req-package paxedit
-  :commands paxedit-mode
+  :functions paxedit-mode
   :diminish paxedit-mode
   :bind (("M-<right>" . paxedit-transpose-forward)
          ("M-<left>" . paxedit-transpose-backward)
@@ -1747,7 +1751,6 @@
 ;;; php-mode.el --- Major mode for editing PHP code
 (req-package php-mode
   :defer t
-  :mode "\\.php\\'"
   :init (progn
           (setq php-executable (executable-find "php"))
           (setq php-template-compatibility nil))
@@ -1809,7 +1812,7 @@
   :config (puml-set-output-type "png"))
 
 (req-package rainbow-delimiters
-  :commands rainbow-delimiters-mode
+  :functions rainbow-delimiters-mode
   :init (add-hook 'prog-mde-hook 'rainbow-delimiters-mode))
 
 ;; rainbow-mode.el --- Colorize color names in buffers
@@ -1836,7 +1839,7 @@
 ;; session.el --- use variables, registers and buffer places across sessions
 (req-package session
   :disabled t
-  :commands session-initialize
+  :functions session-initialize
   :init (add-hook 'after-init-hook 'session-initialize)
   :config (add-to-list 'session-globals-exclude 'org-mark-ring))
 
@@ -1887,7 +1890,7 @@
 
 (req-package tagedit
   :diminish tagedit-mode
-  :commands tagedit-mode
+  :functions tagedit-mode
   :init (add-hook 'html-mode-hook 'tagedit-mode)
   :config (tagedit-add-paredit-like-keybindings))
 
@@ -1964,7 +1967,7 @@
   :config (global-whitespace-cleanup-mode))
 
 (req-package with-editor
-  :commands with-editor-export-editor
+  :functions with-editor-export-editor
   :init (progn
           (add-hook 'shell-mode-hook  'with-editor-export-editor)
           (add-hook 'term-mode-hook   'with-editor-export-editor)
@@ -1973,7 +1976,7 @@
 
 ;; ws-butler.el --- Unobtrusively remove trailing whitespace.
 (req-package ws-butler
-  :commands ws-butler-mode
+  :functions ws-butler-mode
   :diminish ws-butler-mode
   :init (add-hook 'prog-mode-hook 'ws-butler-mode))
 ;; #+end_src
@@ -2027,7 +2030,7 @@
 ;;   :config (global-fringe-current-line-mode))
 ;; 效果差
 ;; (req-package highlight-indent-guides
-;;   :commands highlight-indent-guides-mode
+;;   :functions highlight-indent-guides-mode
 ;;   :init (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
 ;; (req-package indent-guide)
 ;; (req-package highlight-indentation)
@@ -2041,7 +2044,7 @@
 
 ;; (req-package fancy-battery
 ;;   :disabled t
-;;   :commands fancy-battery-mode
+;;   :functions fancy-battery-mode
 ;;   :require battery
 ;;   :init (progn
 ;;           (remove-hook 'after-init-hook 'display-battery-mode)
@@ -2089,7 +2092,7 @@
 ;; (req-package org-annotate-file)
 
 ;; (req-package windmove
-;;   :commands (windmove-up windmove-left windmove-down windmove-right)
+;;   :functions (windmove-up windmove-left windmove-down windmove-right)
 ;;   :init (progn
 ;;           ;; Make windmove work in org-mode
 ;;           (add-hook 'org-shiftup-final-hook 'windmove-up)
