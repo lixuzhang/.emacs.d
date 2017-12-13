@@ -1,6 +1,6 @@
 ;;; init.el --- Emacs 配置文件                        -*- lexical-binding: t; -*-
 
-;;; Header
+;;; Header:
 
 ;; Copyright (C) 2016, 2017  李旭章
 
@@ -20,13 +20,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary
+;;; Commentary:
 
 ;; 考虑过多种组织方式，比如按应用分类、按主次模式分类等，但总有各种特殊情况感觉
 ;; 这些分类方式不合理。于是干脆按 emacs 的核心功能、扩展功能、第三方扩展进行分类，
 ;; 并按字母顺序排列。
 
-;;; Code
+;;; Code:
 
 ;; ** 核心
 ;; #+BEGIN_SRC emacs-lisp
@@ -45,7 +45,10 @@
 (setq-default transient-mark-mode t)
 (setq-default indicate-empty-lines t)
 (setq-default indicate-buffer-boundaries 'left)
-;; (setq mode-line-format)
+;; (setq mode-line-format )
+
+;; eval.c --- Evaluator for GNU Emacs Lisp interpreter.
+(setq debug-on-error t)
 
 ;; xkdispnew.c --- Updating of data structures for redisplay.
 (setq visible-bell t)
@@ -122,13 +125,11 @@
 ;; 只有本设置才对窗口显示字体起作用，set-face-attribute、set-face-font 和
 ;; set-frame-font 均不起作用。
 (setq default-frame-alist
-      '((fullscreen . fullboth)
-        (font .  "fontset-standard")
+      '((font .  "fontset-standard")
         (menu-bar-lines . nil)
         (vertical-scroll-bars . nil)
-        ;; (alpha . (85 50))
-        ))
-(setq make-pointer-invisible nil)
+        (alpha . (100 90))))
+;; (setq make-pointer-invisible nil)
 
 ;; indent.c --- Indentation functions.
 (setq-default indent-tabs-mode nil)
@@ -186,7 +187,7 @@
 (prefer-coding-system 'utf-8)
 
 ;; textmodes/text-mode.el --- text mode, and its idiosyncratic commands
-(add-hook 'text-mode-hook 'turn-on-auto-fill)
+(add-hook 'text-mode-hook #'turn-on-auto-fill)
 
 ;; textmodes/paragraphs.el --- paragraph and sentence parsing
 (setq sentence-end-double-space nil)
@@ -197,7 +198,7 @@
 
 ;; startup.el --- process Emacs shell arguments
 ;; (setq fancy-splash-image nil)
-(setq inhibit-startup-screen t) ; inhibit-startup-message inhibit-splash-screen
+(setq inhibit-startup-screen t) ; inhibit-startup-message => inhibit-splash-screen
 (setq inhibit-startup-echo-area-message "Happy Hacking!")
 ;; #+END_SRC
 
@@ -259,12 +260,15 @@
 
 ;; env.el --- functions to manipulate environment variables
 (require 'env)
-(dolist (e `(("JAVA_TOOL_OPTIONS" .
+(dolist (e '(("JAVA_TOOL_OPTIONS" .
               "-Dfile.encoding=utf-8 -Duser.language=zh_CN -Duser.country=CN")))
   (let ((name (car e))
         (value (cdr e)))
     (unless (getenv name)
       (setenv name value))))
+;; 获取 gcc include paths 的方法
+;; (process-lines "sh" "-c" "echo | cpp -x c++ -Wp,-v - 2>&1 | sed '/#/d;/ignoring/d;/End of/d;s/^ //g' | xargs cygpath.exe -w | sort")
+;; (semantic-gcc-get-include-paths "c++")
 
 ;; faces.el --- Lisp faces
 (require 'faces)
@@ -282,12 +286,12 @@
 (setq auto-save-default nil)
 (setq make-backup-files nil)
 (require 'files)
-(add-hook 'before-save-hook 'copyright-update)
+(add-hook 'before-save-hook #'copyright-update)
 
 
 ;; frame.el --- multi-frame management independent of window systems
-(setq initial-frame-alist default-frame-alist)
-(setq minibuffer-frame-alist '((font .  "fontset-standard")))
+(setq initial-frame-alist '((fullscreen . fullboth)))
+(setq minibuffer-frame-alist '((font . "fontset-standard")))
 (require 'frame)
 ;; (blink-cursor-mode 1)
 ;; (set-frame-font "fontset-standard" nil t)  ; 不起作用?
@@ -348,8 +352,8 @@
 ;; (require 'bind-key)
 ;; (require 'diminish)
 ;; (setq use-package-always-ensure t)
-(setq use-package-debug t)
-(setq use-package-verbose t)
+;; (setq use-package-debug t)
+;; (setq use-package-verbose t)
 (eval-when-compile
   (require 'use-package))
 (setq req-package-log-level 'error)
@@ -371,8 +375,9 @@
   :config (mouse-avoidance-mode 'animate))
 
 ;; battery.el --- display battery status information
-;; (req-package battery
-;;   :config (add-hook 'after-init-hook 'display-battery-mode))
+(req-package battery
+  :commands display-battery-mode
+  :init (add-hook 'after-init-hook #'display-battery-mode))
 
 ;; bookmark.el --- set bookmarks, maybe annotate them, jump to them later
 (req-package bookmark)
@@ -390,11 +395,8 @@
 
 ;; desktop.el --- save partial status of Emacs when killed
 (req-package desktop
-  :disabled t
   :init (setq desktop-load-locked-desktop t)
-  :config (progn
-            (desktop-save-mode 1)      ; desktop-load-default 已经过时
-            (desktop-read)))
+  :config (desktop-save-mode 1))
 
 ;; doc-view.el --- View PDF/PostScript/DVI files in Emacs
 (req-package doc-view
@@ -403,9 +405,10 @@
 
 ;; hexl.el --- edit a file in a hex dump format using the hexl filter
 (req-package hexl
-  :config (progn
-            (add-hook 'hexl-mode-hook 'hexl-follow-line)
-            (add-hook 'hexl-mode-hook 'hexl-activate-ruler)))
+  :commands (hexl-follow-line hexl-active-ruler)
+  :init (progn
+          (add-hook 'hexl-mode-hook #'hexl-follow-line)
+          (add-hook 'hexl-mode-hook #'hexl-activate-ruler)))
 
 ;; hippie-exp.el --- expand text trying various ways to find its expansion
 (req-package hippie-exp
@@ -454,12 +457,17 @@
 
 ;; linum.el --- display line numbers in the left margin
 (req-package linum
-  :config (add-hook 'prog-mode-hook 'linum-mode))
+  :commands linum-mode
+  :init (add-hook 'prog-mode-hook #'linum-mode))
 
 ;; paren.el --- highlight matching paren
 (req-package paren
   :init (setq show-paren-style 'expression)
   :config (show-paren-mode 1))
+
+;; savehist.el --- Save minibuffer history
+(req-package savehist
+  :init (savehist-mode 1))
 
 ;; saveplace.el --- automatically save place in files
 (req-package saveplace
@@ -501,10 +509,10 @@
 
 ;; time-stamp.el --- Maintain last change time stamps in files edited by Emacs
 (req-package time-stamp
-  :functions time-stamp
+  :commands time-stamp
   :init (progn
           (setq time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S %Z %U")
-          (add-hook 'before-save-hook 'time-stamp)))
+          (add-hook 'before-save-hook #'time-stamp)))
 
 ;; whitespace.el --- minor mode to visualize TAB, (HARD) SPACE, NEWLINE
 (req-package whitespace
@@ -601,8 +609,8 @@
                 diary-entry
                 "仅剩"
                 (if (zerop (% days 7))
-                    (format "%d周" (/ days 7))
-                  (format "%d天" days)))))
+                    (format "%d 周" (/ days 7))
+                  (format "%d 天" days)))))
 
 ;; timeclock.el --- mode for keeping track of how much you work
 (req-package timeclock
@@ -613,7 +621,6 @@
          ("C-x t u" . timeclock-update-mode-line)
          ("C-x t w" . timeclock-when-to-leave-string))
   :config (timeclock-mode-line-display))
-
 ;;; ---------------------------------------------------------------------------
 ;; #+END_SRC
 
@@ -665,7 +672,20 @@
             ;; semantic/ia.el --- Interactive Analysis functions
             (require 'semantic/ia)
             (setq hippie-expand-try-functions-list
-                  (cons 'semantic-ia-complete-symbol hippie-expand-try-functions-list))))
+                  (cons 'semantic-ia-complete-symbol hippie-expand-try-functions-list))
+
+            ;; semantic/bovine/gcc.el --- gcc querying special code for the C parser
+            (require 'semantic/bovine/gcc)
+            (semantic-gcc-setup)
+
+            ;; semantic/bovine/c.el --- Semantic details for C
+            (require 'semantic/bovine/c)
+            (setq semantic-c-dependency-system-include-path
+                  (semantic-gcc-get-include-paths "c"))
+
+            ;; semantic/bovine/scm.el --- Semantic details for Scheme (guile)
+            (require 'semantic/bovine/scm)
+            ))
 
 ;; srecode.el --- Semantic buffer evaluator.
 (req-package srecode
@@ -673,7 +693,6 @@
             ;; srecode/mode.el --- Minor mode for managing and using SRecode templates
             (require 'srecode/mode)
             (global-srecode-minor-mode 1)))
-
 ;;; ---------------------------------------------------------------------------
 ;; #+END_SRC
 
@@ -867,9 +886,9 @@
 
 ;; executable.el --- base functionality for executable interpreter scripts
 (req-package executable
-  :functions executable-make-buffer-file-executable-if-script-p
+  :commands executable-make-buffer-file-executable-if-script-p
   :init (add-hook 'after-save-hook
-                  'executable-make-buffer-file-executable-if-script-p))
+                  #'executable-make-buffer-file-executable-if-script-p))
 
 ;; gdb-mi.el --- User Interface for running GDB
 (req-package gdb-mi
@@ -878,9 +897,9 @@
           (setq gdb-show-main t)))
 
 (req-package hideshow
-  :functions hs-minor-mode
+  :commands hs-minor-mode
   :diminish hs-minor-mode
-  :init (add-hook 'prog-mode-hook 'hs-minor-mode))
+  :init (add-hook 'prog-mode-hook #'hs-minor-mode))
 
 ;; python.el --- Python's flying circus support for Emacs
 (req-package python
@@ -894,9 +913,9 @@
   :init (when (executable-find "guile")
           (setq scheme-program-name "guile")))
 
-;;; sql.el --- specialized comint.el for SQL interpreters
+;; sql.el --- specialized comint.el for SQL interpreters
 (req-package sql
-  :init (setq sql-postgres-login-params `((server :default "localhost")
+  :init (setq sql-postgres-login-params '((server :default "localhost")
                                           (user :default "postgres")
                                           (database :default "postgres"))))
 
@@ -904,7 +923,6 @@
 (req-package subword
   :diminish subword-mode
   :config (global-subword-mode))
-
 ;;; ---------------------------------------------------------------------------
 ;; #+END_SRC
 
@@ -926,27 +944,27 @@
 
 ;; flyspell.el --- On-the-fly spell checker
 (req-package flyspell
-  :functions (turn-on-flyspell flyspell-prog-mode)
   :require ispell
+  :commands (turn-on-flyspell flyspell-prog-mode)
   :diminish flyspell-mode
   :init (when (executable-find ispell-program-name)
-          (add-hook 'text-mode-hook 'turn-on-flyspell)
-          (add-hook 'prog-mode-hook 'flyspell-prog-mode)))
+          (add-hook 'text-mode-hook #'turn-on-flyspell)
+          (add-hook 'prog-mode-hook #'flyspell-prog-mode)))
 
 ;; remember --- a mode for quickly jotting down things to remember
 (req-package remember
   :init (setq remember-data-file "~/life/remember.org")
   :config (add-to-list 'remember-handler-functions
-                       'remember-diary-extract-entries))
+                       #'remember-diary-extract-entries))
 
 ;;; ---------------------------------------------------------------------------
 ;; #+END_SRC
 
 ;; *** 第三方扩展
 ;; #+begin_src emacs-lisp
-;;; ===========================================================================
-;;; 第三方扩展
-;;; ===========================================================================
+  ;;; ===========================================================================
+  ;;; 第三方扩展
+  ;;; ===========================================================================
 ;; (org-babel-load-file
 ;;  (expand-file-name "init-packages.org" user-emacs-directory))
 ;; (load
@@ -971,8 +989,8 @@
 (req-package ac-html-csswatcher)
 
 (req-package aggressive-fill-paragraph
-  :defer t
-  :config (afp-setup-recommended-hooks))
+  ;; :config (afp-setup-recommended-hooks)
+  )
 
 ;; aggressive-indent.el --- Minor mode to aggressively keep your code always indented
 (req-package aggressive-indent
@@ -992,11 +1010,12 @@
          ("C-M-%" . anzu-query-replace-regexp))
   :config (global-anzu-mode))
 
+;; apache-mode.el --- major mode for editing Apache configuration files
 (req-package apache-mode)
 
 ;; artbollocks-mode.el --- Improve your writing (especially about art)
 (req-package artbollocks-mode
-  :functions artbollocks-mode
+  :commands artbollocks-mode
   :diminish artbollocks-mode
   :init (progn
           (setq artbollocks-weasel-words-regex
@@ -1004,7 +1023,11 @@
                         (regexp-opt '("许多" "几乎" "很少" "差不多" "有点" "大量"
                                       "大致" "迟点" "迟些" "过几天" "大体上")
                                     t)))
-          (add-hook 'text-mode-hook 'artbollocks-mode)))
+          (add-hook 'text-mode-hook #'artbollocks-mode)))
+
+(req-package auto-correct)
+(req-package captain)
+(req-package vigenere)
 
 ;; AUCTEX
 (req-package tex-site
@@ -1066,12 +1089,11 @@
 
 ;; c-eldoc.el --- helpful description of the arguments to C functions
 (req-package c-eldoc
-  :defer t
-  :functions c-turn-on-eldoc-mode
+  :commands c-turn-on-eldoc-mode
   :init (progn
           (setq c-eldoc-cpp-command "cpp")
-          (add-hook 'c-mode-hook 'c-turn-on-eldoc-mode)
-          (add-hook 'c++-mode-hook 'c-turn-on-eldoc-mode)))
+          (add-hook 'c-mode-hook #'c-turn-on-eldoc-mode)
+          (add-hook 'c++-mode-hook #'c-turn-on-eldoc-mode)))
 
 ;; chinese-fonts-setup.el --- A fonts config tool enforcing double-width Chinese character display
 (req-package chinese-fonts-setup
@@ -1096,8 +1118,7 @@
             (global-set-key ";" 'chinese-wbim-insert-ascii)))
 
 ;; chm-view.el --- View CHM file.
-(req-package chm-view
-  :defer t)
+(req-package chm-view)
 
 ;; clean-aindent-mode.el --- Simple indent and unindent, trims indent white-space
 (req-package clean-aindent-mode
@@ -1113,12 +1134,11 @@
   :bind ("M-;" . comment-dwim-2))
 
 ;; commify.el --- Toggle grouping commas in numbers
-(req-package commify
-  :functions commify-toggle)
+(req-package commify)
 
 ;; company.el --- Modular text completion framework
 (req-package company
-  :functions global-company-mode
+  :commands global-company-mode
   :diminish company-mode
   :bind ("C-c /" . company-files)
   :init (progn
@@ -1126,13 +1146,24 @@
           (setq company-tooltip-align-annotations 't)          ; align annotations to the right tooltip border
           (setq company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
           (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
-          (add-hook 'after-init-hook 'global-company-mode)))
+          (add-hook 'after-init-hook #'global-company-mode)))
 
+;; company-c-headers.el --- Company mode backend for C/C++ header files
 (req-package company-c-headers
-  :require company
-  :functions company-c-headers
-  :init (add-to-list 'company-backends 'company-c-headers))
+  :require (company semantic)
+  :commands company-c-headers
+  :init (progn
+          (add-hook 'c-mode-hook
+                    (lambda ()
+                      (setq company-c-headers-path-system
+                            (semantic-gcc-get-include-paths "c"))))
+          (add-hook 'c++-mode-hook
+                    (lambda ()
+                      (setq company-c-headers-path-system
+                            (semantic-gcc-get-include-paths "c++"))))
+          (add-to-list 'company-backends #'company-c-headers)))
 
+;; company-flx.el --- flx based fuzzy matching for company -*- lexical-binding: t -*-
 (req-package company-flx
   :require company
   :config (company-flx-mode +1))
@@ -1140,22 +1171,25 @@
 (req-package company-math
   :require company)
 
+;; company-php.el --- company completion source for php
 (req-package company-php
-  :require (company php)
-  :functions company-ac-php-backend
+  :require (company php-mode)
+  :commands company-ac-php-backend
   :init (add-hook 'php-mode-hook
-                  '(lambda ()
-                     (add-to-list 'company-backends 'company-ac-php-backend))))
+                  (lambda ()
+                    (add-to-list 'company-backends #'company-ac-php-backend))))
 
 (req-package company-quickhelp
   :require company)
 
+;; company-shell.el --- Company mode backend for shell functions
 (req-package company-shell
   :require company)
 
 (req-package company-statistics
   :require company
-  :config (add-hook 'after-init-hook 'company-statistics-mode))
+  :commands company-statistics-mode
+  :init (add-hook 'after-init-hook #'company-statistics-mode))
 
 (req-package company-web
   :require (company web-mode)
@@ -1172,7 +1206,6 @@
 
 ;; css-eldoc.el --- an eldoc-mode plugin for CSS source code
 (req-package css-eldoc
-  :defer t
   :config (css-eldoc-enable))
 
 ;; cursor-chg.el --- Change cursor dynamically, depending on the context.
@@ -1211,8 +1244,7 @@
 (req-package duplicate-thing
   :bind ("M-c" . duplicate-thing))
 
-(req-package dynamic-ruler
-  :defer t)
+(req-package dynamic-ruler)
 
 ;; (req-package easy-lentic
 ;;   :require lentic
@@ -1220,7 +1252,7 @@
 
 ;; ecb.el --- a code browser for Emacs
 (req-package ecb
-  :defer t
+  :commands ecb-activate
   :init (progn
           (setq ecb-version-check nil)
           ;; (setq ecb-auto-activate t)
@@ -1244,10 +1276,10 @@
 
 ;; ede-php-autoload.el --- Simple EDE PHP Project
 (req-package ede-php-autoload
-  :defer t
-  :requires (ede php-mode)
+  :require (ede php-mode)
+  :commands ede-php-autoload-mode
   :init (progn
-          (add-hook 'php-mode-hook 'ede-php-autoload-mode)))
+          (add-hook 'php-mode-hook #'ede-php-autoload-mode)))
 
 ;; ede-php-autoload-composer-installers.el --- Composer installers support for ede-php-autoload
 (req-package ede-php-autoload-composer-installers
@@ -1259,15 +1291,12 @@
 
 ;; electric-case.el --- insert camelCase, snake_case words without "Shift"ing
 (req-package electric-case
-  :functions (electric-case-ahk-init
-              electric-case-c-init
-              electric-case-java-init
-              electric-case-scala-init)
+  :commands (electric-case-ahk-init electric-case-c-init electric-case-java-init electric-case-scala-init)
   :init (progn
-          (add-hook 'ahk-mode-hook 'electric-case-ahk-init)
-          (add-hook 'c-mode-hook 'electric-case-c-init)
-          (add-hook 'java-mode-hook 'electric-case-java-init)
-          (add-hook 'scala-mode-hook 'electric-case-scala-init)))
+          (add-hook 'ahk-mode-hook #'electric-case-ahk-init)
+          (add-hook 'c-mode-hook #'electric-case-c-init)
+          (add-hook 'java-mode-hook #'electric-case-java-init)
+          (add-hook 'scala-mode-hook #'electric-case-scala-init)))
 
 ;; electric-operator.el --- Automatically add spaces around operators
 ;; 发展过程：smart-operator => electric-spacing => electric-operator
@@ -1281,28 +1310,27 @@
 
 ;; Zen Coding => Emmet
 (req-package emmet-mode
+  :commands emmet-mode
   :diminish emmet-mode
   :init (progn
           (setq emmet-move-cursor-between-quotes t)
           (setq emmet-expand-jsx-className? t)
-          (add-hook 'sgml-mode-hook 'emmet-mode)
-          (add-hook 'css-mode-hook  'emmet-mode)
-          (add-hook 'web-mode-hook 'emmet-mode)))
+          (add-hook 'sgml-mode-hook #'emmet-mode)
+          (add-hook 'css-mode-hook  #'emmet-mode)
+          (add-hook 'web-mode-hook #'emmet-mode)))
 
 (req-package emms
   :init (progn
-          (emms-standard)
-          ;; (emms-default-players)
           (setq emms-player-mpg321-command-name "mpg123")
-          (setq emms-player-list                  ; 只使用mplayer播放
-                (list emms-player-mplayer-playlist emms-player-mplayer))))
+          (setq emms-player-list                  ; 只使用 mplayer 播放
+                (list 'emms-player-mplayer-playlist 'emms-player-mplayer)))
+  :config (emms-standard))
 
 (req-package eshell-did-you-mean
   :require eshell
-  :config (eval-after-load "eshell" '(eshell-did-you-mean-setup)))
+  :config (eshell-did-you-mean-setup))
 
 (req-package expand-region
-  :defer t
   :bind (("C-=" . er/expand-region)))
 
 (req-package fancy-narrow
@@ -1311,27 +1339,27 @@
 
 ;; fic-mode.el --- Show FIXME/TODO/BUG/KLUDGE in special face only in comments and strings
 (req-package fic-mode
-  :functions fic-mode
+  :commands fic-mode
   :diminish fic-mode
-  :init (add-hook 'prog-mode-hook 'fic-mode))
+  :init (add-hook 'prog-mode-hook #'fic-mode))
 
-(req-package figlet
-  :defer t)
+(req-package figlet)
 
-(req-package fliptext
-  :defer t)
+(req-package fliptext)
 
 ;; flx-ido.el --- flx integration for ido
 (req-package flx-ido
   :require ido
   :config (flx-ido-mode 1))
 
-(req-package flycheck)
+(req-package flycheck
+  :require semantic
+  :init (setq flycheck-gcc-include-path (semantic-gcc-get-include-paths "c++")))
 
 (req-package flycheck-color-mode-line
   :require flycheck
-  :functions flycheck-color-mode-line
-  :init (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))
+  :commands flycheck-color-mode-line-mode
+  :init (add-hook 'flycheck-mode-hook #'flycheck-color-mode-line-mode))
 
 (req-package flycheck-package
   :require (flycheck package-lint)
@@ -1347,10 +1375,12 @@
 
 (req-package geiser
   :require scheme
-  :init (setq geiser-default-implementation scheme-program-name))
+  :init (progn
+          (setq geiser-default-implementation 'chez)
+          (setq geiser-active-implementations '(chez guile))))
 
 (req-package ggtags
-  :functions ggtags-mode
+  :commands ggtags-mode
   :init (progn
           (setq gtags-suggested-key-mapping t)
           (add-hook 'c-mode-common-hook
@@ -1367,14 +1397,14 @@
 
 (req-package gitignore-mode)
 
+;; git-messenger.el --- Pop up last commit information of current line
 (req-package git-messenger
   :require magit
-  :functions (git-messenger:copy-message git-messenger:popup-message)
-  :bind (("C-x v p" . git-messenger:popup-message))
-  :config (progn
-            (define-key git-messenger-map (kbd "m") 'git-messenger:copy-message)
-            ;; Enable magit-commit-mode after typing 's', 'S', 'd'
-            (add-hook 'git-messenger:popup-buffer-hook 'magit-commit-mode)))
+  :commands magit-commit-mode
+  :bind (("C-x v p" . git-messenger:popup-message)
+         :map git-messenger-map
+         ("m" . git-messenger:copy-message))
+  :init (setq git-messenger:use-magit-popup t))
 
 (req-package git-timemachine)
 
@@ -1408,10 +1438,10 @@
             (golden-ratio-mode 1)))
 
 (req-package google-c-style
-  :functions (google-set-c-style google-make-newline-indent)
+  :commands (google-set-c-style google-make-newline-indent)
   :init (progn
-          (add-hook 'c-mode-common-hook 'google-set-c-style)
-          (add-hook 'c-mode-common-hook 'google-make-newline-indent)))
+          (add-hook 'c-mode-common-hook #'google-set-c-style)
+          (add-hook 'c-mode-common-hook #'google-make-newline-indent)))
 
 (req-package graphviz-dot-mode
   :init (unless (getenv "GRAPHVIZ_DOT")
@@ -1441,7 +1471,7 @@
   :config (progn
             (require 'helm-config)
             (require 'helm-grep)
-            ;; (helm-mode 1)
+            (helm-mode 1)
             (helm-autoresize-mode 1)))
 
 (req-package helm-backup
@@ -1461,7 +1491,7 @@
 ;; helm-gtags.el --- GNU GLOBAL helm interface
 (req-package helm-gtags
   :require (helm ggtags)
-  :functions helm-gtags-mode
+  :commands helm-gtags-mode
   :bind (("C-c g a" . helm-gtags-tags-in-this-function)
          ("C-j"     . helm-gtags-select)
          ("M-."     . helm-gtags-dwim)
@@ -1475,12 +1505,12 @@
                 helm-gtags-pulse-at-cursor t
                 helm-gtags-prefix-key "\C-cg"
                 helm-gtags-suggested-key-mapping t)
-          (add-hook 'dired-mode-hook  'helm-gtags-mode)
-          (add-hook 'eshell-mode-hook 'helm-gtags-mode)
-          (add-hook 'c-mode-hook      'helm-gtags-mode)
-          (add-hook 'c++-mode-hook    'helm-gtags-mode)
-          (add-hook 'java-mode-hook   'helm-gtags-mode)
-          (add-hook 'asm-mode-hook    'helm-gtags-mode)))
+          (add-hook 'dired-mode-hook  #'helm-gtags-mode)
+          (add-hook 'eshell-mode-hook #'helm-gtags-mode)
+          (add-hook 'c-mode-hook      #'helm-gtags-mode)
+          (add-hook 'c++-mode-hook    #'helm-gtags-mode)
+          (add-hook 'java-mode-hook   #'helm-gtags-mode)
+          (add-hook 'asm-mode-hook    #'helm-gtags-mode)))
 
 ;; helm-make.el --- Select a Makefile target with helm
 (req-package helm-make
@@ -1518,13 +1548,13 @@
 
 ;; hideshow-org.el --- Provides org-mode like hide and show for hideshow.el
 (req-package hideshow-org
-  :functions hs-org/minor-mode
-  :init (add-hook 'prog-mode-hook 'hs-org/minor-mode))
+  :commands hs-org/minor-mode
+  :init (add-hook 'prog-mode-hook #'hs-org/minor-mode))
 
 ;; hideshowvis.el --- Add markers to the fringe for regions foldable by hideshow.el
 (req-package hideshowvis
-  :functions hideshowvis-enable
-  :init (add-hook 'prog-mode-hook 'hideshowvis-enable)
+  :commands hideshowvis-enable
+  :init (add-hook 'prog-mode-hook #'hideshowvis-enable)
   :config (hideshowvis-symbols))
 
 ;; hungry-delete.el --- hungry delete minor mode
@@ -1544,16 +1574,13 @@
 (req-package iedit
   :bind ("C-;" . iedit-mode))
 
-(req-package import-js
-  :functions import-js-import import-js-goto)
+(req-package import-js)
 
 (req-package indium)
 
-(req-package interleave
-  :defer t)
+(req-package interleave)
 
 (req-package jdee
-  :defer t
   :require ecb)
 
 ;; inferior-js-mode
@@ -1563,29 +1590,36 @@
             (setq inferior-js-program-command "js")))
 
 (req-package js2-mode
-  :defer t
-  :mode "\\.js\\'" )
+  :commands js2-minor-mode
+  :mode "\\.js\\'"
+  :interpreter "node"
+  :init (add-hook 'js-mode-hook #'js2-minor-mode))
 
-(req-package json-mode
-  :defer t)
+(req-package json-mode)
 
 (req-package jsx-mode
-  :defer t
   :mode "\\.jsx\\'" )
 
 
 ;; kanban.el --- Parse org-todo headlines to use org-tables as Kanban tables
 (req-package kanban)
 
+;; keyfreq.el --- track command frequencies
+(req-package keyfreq
+  :config (progn
+            (keyfreq-mode 1)
+            (keyfreq-autosave-mode 1)))
+
 ;; lentic-mode.el --- minor mode for lentic buffers
 (req-package lentic
-  :defer t
   :require m-buffer
   :config (global-lentic-mode))
 
+;; magit.el --- A Git porcelain inside Emacs
 (req-package magit
   :init (progn
           (setq magit-auto-revert-mode nil)
+          (setq magit-diff-paint-whitespace 'status)
           ;; https://github.com/magit/magit/issues/1839
           (setq magit-last-seen-setup-instructions "1.4.0")))
 
@@ -1598,7 +1632,6 @@
           (setq mmm-global-mode 'buffers-with-submode-classes)))
 
 (req-package multiple-cursors
-  :defer t
   :bind (("C-S-c C-S-c" . mc/edit-lines)
          ("C->" . mc/mark-next-like-this)
          ("C-<" . mc/mark-previous-like-this)
@@ -1606,9 +1639,25 @@
          ("M-<mouse-1>" . mc/add-cursor-on-click)
          ("C-S-<mouse-1>" . mc/add-cursor-on-click)))
 
+;; mwim.el --- Switch between the beginning/end of line or code
 (req-package mwim
   :bind (("C-a" . mwim-beginning-of-code-or-line)
          ("C-e" . mwim-end-of-code-or-line)))
+
+;; nameframe.el --- Manage frames by name.
+(req-package nameframe
+  :require (projectile perspective)
+  :bind (("M-P" . nameframe-switch-frame)))
+
+;; nameframe-perspective.el --- Nameframe integration with perspective.el
+(req-package nameframe-perspective
+  :require nameframe
+  :config (nameframe-perspective-mode t))
+
+;; nameframe-projectile.el --- Nameframe integration with Projectile
+(req-package nameframe-projectile
+  :require nameframe
+  :config (nameframe-projectile-mode t))
 
 (req-package never-comment)
 
@@ -1619,7 +1668,7 @@
   :require org)
 
 (req-package ob-php
-  :require org)
+  :require (org php-mode))
 
 (req-package org-chinese-utils
   :require (org ox)
@@ -1636,10 +1685,10 @@
 
 (req-package org-bullets
   :require org
-  :functions org-bullets-mode
+  :commands org-bullets-mode
   :init (progn
           (setq org-bullets-bullet-list '("◉" "☯" "🍁" "🍀" "⚝" "🔯" "🌼")) ; ⁂❖🌸🏵🏶✿❉
-          (add-hook 'org-mode-hook 'org-bullets-mode)))
+          (add-hook 'org-mode-hook #'org-bullets-mode)))
 
 (req-package org-doing
   :require org
@@ -1652,21 +1701,23 @@
 (req-package org-pomodoro
   :require org)
 
+;; org-present.el --- Minimalist presentation minor-mode for Emacs org-mode.
 (req-package org-present
   :require org
-  :config (progn
-            (add-hook 'org-present-mode-hook
-                      (lambda ()
-                        (org-present-big)
-                        (org-display-inline-images)
-                        (org-present-hide-cursor)
-                        (org-present-read-only)))
-            (add-hook 'org-present-mode-quit-hook
-                      (lambda ()
-                        (org-present-small)
-                        (org-remove-inline-images)
-                        (org-present-show-cursor)
-                        (org-present-read-write)))))
+  :commands org-present
+  :init (progn
+          (add-hook 'org-present-mode-hook
+                    (lambda ()
+                      (org-present-big)
+                      (org-display-inline-images)
+                      (org-present-hide-cursor)
+                      (org-present-read-only)))
+          (add-hook 'org-present-mode-quit-hook
+                    (lambda ()
+                      (org-present-small)
+                      (org-remove-inline-images)
+                      (org-present-show-cursor)
+                      (org-present-read-write)))))
 
 ;; org-eww => org-preview-html
 (req-package org-preview-html
@@ -1697,30 +1748,30 @@
 
 ;; pangu-spacing.el --- Minor-mode to add space between Chinese and English characters.
 (req-package pangu-spacing
-  :functions pangu-spacing-mode
+  :commands pangu-spacing-mode
   :diminish pangu-spacing-mode
   :init (progn
           (setq pangu-spacing-real-insert-separtor t)
-          (add-hook 'text-mode-hook 'pangu-spacing-mode)))
+          (add-hook 'text-mode-hook #'pangu-spacing-mode)))
 
 (req-package paredit
-  :functions enable-paredit-mode
+  :commands enable-paredit-mode
   :diminish paredit-mode
   :init (progn
-          (add-hook 'lisp-mode-hook 'enable-paredit-mode)
-          (add-hook 'scheme-mode-hook 'enable-paredit-mode)
-          (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-          (add-hook 'clojure-mode-hook 'enable-paredit-mode)))
+          (add-hook 'lisp-mode-hook #'enable-paredit-mode)
+          (add-hook 'scheme-mode-hook #'enable-paredit-mode)
+          (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
+          (add-hook 'clojure-mode-hook #'enable-paredit-mode)))
 
 (req-package paredit-everywhere
-  :functions paredit-everywhere-mode
+  :commands paredit-everywhere-mode
   :diminish paredit-everywhere-mode
   :init (progn
-          (add-hook 'prog-mode-hook 'paredit-everywhere-mode)
-          (add-hook 'css-mode-hook 'paredit-everywhere-mode)))
+          (add-hook 'prog-mode-hook #'paredit-everywhere-mode)
+          (add-hook 'css-mode-hook #'paredit-everywhere-mode)))
 
 (req-package paxedit
-  :functions paxedit-mode
+  :commands paxedit-mode
   :diminish paxedit-mode
   :bind (("M-<right>" . paxedit-transpose-forward)
          ("M-<left>" . paxedit-transpose-backward)
@@ -1736,19 +1787,43 @@
          ("C-@" . paxedit-symbol-copy)
          ("C-#" . paxedit-symbol-kill))
   :init (progn
-          (add-hook 'lisp-mode-hook 'paxedit-mode)
-          (add-hook 'scheme-mode-hook 'paxedit-mode)
-          (add-hook 'emacs-lisp-mode-hook 'paxedit-mode)
-          (add-hook 'clojure-mode-hook 'paxedit-mode)))
+          (add-hook 'lisp-mode-hook #'paxedit-mode)
+          (add-hook 'scheme-mode-hook #'paxedit-mode)
+          (add-hook 'emacs-lisp-mode-hook #'paxedit-mode)
+          (add-hook 'clojure-mode-hook #'paxedit-mode)))
 
-(req-package persp-mode
-  :disabled t
-  :diminish persp-mode
-  :functions persp-mode
-  :init (add-hook 'after-init-hook (lambda () (persp-mode 1))))
+(req-package persp-projectile
+  :require (perspective projectile))
 
-;; 不知何故，总是引起 emacs 出错退出。
-;;; php-mode.el --- Major mode for editing PHP code
+(req-package perspective
+  :requires desktop
+  :commands persp-mode
+  :init (add-hook 'desktop-after-read-hook
+                  (lambda () (persp-mode 1))))
+
+;; (req-package persp-mode
+;;   :commands persp-mode
+;;   :diminish persp-mode
+;;   :init (progn
+;;           (setq wg-morph-on nil) ;; switch off animation
+;;           (setq persp-autokill-buffer-on-remove 'kill-weak)
+;;           (add-hook 'after-init-hook (lambda ()
+;;                                        (persp-mode 1)))))
+
+;; (req-package persp-mode-projectile-bridge
+;;   :require (persp-mode projectile)
+;;   :commands persp-mode-projectile-bridge-mode
+;;   :init (progn
+;;           (add-hook 'after-init-hook
+;;                     (lambda ()
+;;                       (persp-mode-projectile-bridge-mode 1)))
+;;           (add-hook 'persp-mode-projectile-bridge-mode-hook
+;;                     (lambda ()
+;;                       (if persp-mode-projectile-bridge-mode
+;;                           (persp-mode-projectile-bridge-find-perspectives-for-all-buffers)
+;;                         (persp-mode-projectile-bridge-kill-perspectives))))))
+
+;; php-mode.el --- Major mode for editing PHP code
 (req-package php-mode
   :defer t
   :init (progn
@@ -1760,7 +1835,8 @@
   :require php-mode)
 (req-package php-boris-minor-mode
   :require (php-mode php-boris)
-  :config (add-hook 'php-mode-hook 'php-boris-minor-mode))
+  :commands php-boris-minor-mode
+  :init (add-hook 'php-mode-hook #'php-boris-minor-mode))
 (req-package php-eldoc
   :require php-mode)
 (req-package php-extras
@@ -1773,16 +1849,6 @@
 (req-package pinyin-search)
 
 (req-package pkgbuild-mode)
-
-(req-package pointback
-  :config (global-pointback-mode))
-
-(req-package powerline
-  :disabled t
-  :init (progn
-          (setq powerline-default-separator 'wave)
-          (setq powerline-height 0.5))
-  :config (powerline-default-theme))
 
 (req-package private-diary
   :init (setq private-diary-file "~/life/private.gpg"))
@@ -1801,19 +1867,18 @@
 (req-package projectile-speedbar
   :require (projectile sr-speedbar))
 
-(req-package puml-mode
+(req-package plantuml-mode
   :mode "\\.plu\\'"
   :require graphviz-dot-mode            ; 需要 GRAPHVIZ_DOT 环境变量
   :init (progn
-          (defalias 'plantuml-mode 'puml-mode) ; 与 org-plantuml 兼容
-          ;; 加载前必须先定义 puml-plantuml-jar-path，如果找不到则出错。
-          (setq puml-plantuml-jar-path
-                (substring (locate-file "plantuml.jar" exec-path) 2)))
-  :config (puml-set-output-type "png"))
+          ;; 加载前必须先定义 plantuml-plantuml-jar-path，如果找不到则出错。
+          (setq plantuml-jar-path
+                (locate-file "plantuml.jar" exec-path)))
+  :config (plantuml-set-output-type "png"))
 
 (req-package rainbow-delimiters
-  :functions rainbow-delimiters-mode
-  :init (add-hook 'prog-mde-hook 'rainbow-delimiters-mode))
+  :commands rainbow-delimiters-mode
+  :init (add-hook 'prog-mde-hook #'rainbow-delimiters-mode))
 
 ;; rainbow-mode.el --- Colorize color names in buffers
 (req-package rainbow-mode)
@@ -1835,13 +1900,6 @@
 (req-package rw-language-and-country-codes)
 (req-package rw-ispell)
 (req-package rw-hunspell)
-
-;; session.el --- use variables, registers and buffer places across sessions
-(req-package session
-  :disabled t
-  :functions session-initialize
-  :init (add-hook 'after-init-hook 'session-initialize)
-  :config (add-to-list 'session-globals-exclude 'org-mark-ring))
 
 (req-package skewer-mode
   :diminish skewer-html-mode
@@ -1885,13 +1943,14 @@
 ;; stickyfunc-enhance.el --- An enhancement to stock `semantic-stickyfunc-mode'
 (req-package stickyfunc-enhance)
 
+;; super-save.el --- Auto-save buffers, based on your activity.
 (req-package super-save
   :config (super-save-initialize))
 
 (req-package tagedit
+  :commands tagedit-mode
   :diminish tagedit-mode
-  :functions tagedit-mode
-  :init (add-hook 'html-mode-hook 'tagedit-mode)
+  :init (add-hook 'html-mode-hook #'tagedit-mode)
   :config (tagedit-add-paredit-like-keybindings))
 
 (req-package undo-tree
@@ -1921,6 +1980,8 @@
 
 ;; 替代 workgroups2
 (req-package wconf
+  :requires desktop
+  :commands wconf-load
   :bind (("C-c w s" . wconf-store)
          ("C-c w S" . wconf-store-all)
          ("C-c w R" . wconf-restore-all)
@@ -1928,15 +1989,14 @@
          ("C-c w w" . wconf-switch-to-config)
          ("C-<prior>" . wconf-use-previous)
          ("C-<next>" . wconf-use-next))
-  :config (add-hook 'desktop-after-read-hook      ;so we have all buffers again
-                    (lambda ()
-                      (wconf-load)
-                      (wconf-switch-to-config 0)
-                      (add-hook 'kill-emacs-hook
-                                (lambda ()
-                                  (wconf-store-all)
-                                  (wconf-save))))
-                    'append))
+  :init (add-hook 'desktop-after-read-hook ; so we have all buffers again
+                  (lambda ()
+                    (wconf-load)
+                    (wconf-switch-to-config 0)
+                    (add-hook 'kill-emacs-hook
+                              (lambda ()
+                                (wconf-store-all)
+                                (wconf-save))))))
 
 (req-package web-mode
   :mode ("\\.html?\\'" "\\.tpl\\'" "\\.tpla\\'" "\\.phtml\\'"
@@ -1967,22 +2027,33 @@
   :config (global-whitespace-cleanup-mode))
 
 (req-package with-editor
-  :functions with-editor-export-editor
+  :commands with-editor-export-editor
   :init (progn
-          (add-hook 'shell-mode-hook  'with-editor-export-editor)
-          (add-hook 'term-mode-hook   'with-editor-export-editor)
-          (add-hook 'eshell-mode-hook 'with-editor-export-editor))
+          (add-hook 'shell-mode-hook  #'with-editor-export-editor)
+          (add-hook 'term-mode-hook   #'with-editor-export-editor)
+          (add-hook 'eshell-mode-hook #'with-editor-export-editor))
   :config (shell-command-with-editor-mode 1))
 
 ;; ws-butler.el --- Unobtrusively remove trailing whitespace.
 (req-package ws-butler
-  :functions ws-butler-mode
+  :commands ws-butler-mode
   :diminish ws-butler-mode
-  :init (add-hook 'prog-mode-hook 'ws-butler-mode))
+  :init (add-hook 'prog-mode-hook #'ws-butler-mode))
 ;; #+end_src
 
 ;; *** 放弃的扩展
 ;; #+BEGIN_SRC emacs-lisp
+
+;;; 已经不维护
+;; (req-package puml-mode
+;;   :mode "\\.plu\\'"
+;;   :require graphviz-dot-mode            ; 需要 GRAPHVIZ_DOT 环境变量
+;;   :init (progn
+;;           (defalias 'plantuml-mode 'puml-mode) ; 与 org-plantuml 兼容
+;;           ;; 加载前必须先定义 puml-plantuml-jar-path，如果找不到则出错。
+;;           (setq puml-plantuml-jar-path
+;;                 (substring (locate-file "plantuml.jar" exec-path) 2)))
+;;   :config (puml-set-output-type "png"))
 
 ;; (req-package auto-package-update
 ;;   :config (auto-package-update-maybe))
@@ -1996,7 +2067,7 @@
 ;;   :require scheme)
 
 ;; (req-package outlined-elisp-mode
-;;   :init (add-hook 'emacs-lisp-mode-hook 'outlined-elisp-find-file-hook))
+;;   :init (add-hook 'emacs-lisp-mode-hook #'outlined-elisp-find-file-hook))
 
 ;; 启用 rainbow-delimiters 后无效果，并可替代
 ;; (req-package paren-face
@@ -2030,8 +2101,7 @@
 ;;   :config (global-fringe-current-line-mode))
 ;; 效果差
 ;; (req-package highlight-indent-guides
-;;   :functions highlight-indent-guides-mode
-;;   :init (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
+;;   :init (add-hook 'prog-mode-hook #'highlight-indent-guides-mode))
 ;; (req-package indent-guide)
 ;; (req-package highlight-indentation)
 ;; (req-package page-break-lines
@@ -2039,16 +2109,16 @@
 ;; (req-package fill-column-indicator
 ;;   :config (fci-mode 1))
 
-;; 没什么用，不安装。
-;; (req-package minimap)
+;; (req-package company-auctex
+;;   :require (company tex-site))
 
+;; 没什么用，不安装。
 ;; (req-package fancy-battery
 ;;   :disabled t
-;;   :functions fancy-battery-mode
 ;;   :require battery
 ;;   :init (progn
-;;           (remove-hook 'after-init-hook 'display-battery-mode)
-;;           (add-hook 'after-init-hook 'fancy-battery-mode)))
+;;           (remove-hook 'after-init-hook #'display-battery-mode)
+;;           (add-hook 'after-init-hook #'fancy-battery-mode)))
 
 ;; (req-package-force load-dir
 ;;   :init
@@ -2060,9 +2130,7 @@
 ;; (req-package outshine)
 ;; (req-package navi-mode)
 
-
-;; (req-package company-auctex
-;;   :require (company tex-site))
+;; (req-package minimap)
 
 ;; (req-package yasnippet
 ;;   :diminish yas-minor-mode
@@ -2071,6 +2139,12 @@
 ;;   (req-package java-snippets)
 ;;   (req-package php-auto-yasnippets)
 ;;   (req-package vala-snippets))
+
+;; session.el --- use variables, registers and buffer places across sessions
+;; (req-package session
+;;   :disabled t
+;;   :init (add-hook 'after-init-hook #'session-initialize)
+;;   :config (add-to-list 'session-globals-exclude 'org-mark-ring))
 
 ;; (req-package smartparens
 ;;   :diminish smartparens-mode
@@ -2089,16 +2163,25 @@
 
 ;; (req-package pomodoro)
 
+;; (req-package pointback
+;;   :config (global-pointback-mode))
+
+;; (req-package powerline
+;;   :disabled t
+;;   :init (progn
+;;           (setq powerline-default-separator 'wave)
+;;           (setq powerline-height 0.5))
+;;   :config (powerline-default-theme))
+
 ;; (req-package org-annotate-file)
 
 ;; (req-package windmove
-;;   :functions (windmove-up windmove-left windmove-down windmove-right)
 ;;   :init (progn
 ;;           ;; Make windmove work in org-mode
-;;           (add-hook 'org-shiftup-final-hook 'windmove-up)
-;;           (add-hook 'org-shiftleft-final-hook 'windmove-left)
-;;           (add-hook 'org-shiftdown-final-hook 'windmove-down)
-;;           (add-hook 'org-shiftright-final-hook 'windmove-right)))
+;;           (add-hook 'org-shiftup-final-hook #'windmove-up)
+;;           (add-hook 'org-shiftleft-final-hook #'windmove-left)
+;;           (add-hook 'org-shiftdown-final-hook #'windmove-down)
+;;           (add-hook 'org-shiftright-final-hook #'windmove-right)))
 
 ;; (unless (package-installed-p 'r5rs)
 ;;   (package-install 'r5rs))
@@ -2121,12 +2204,15 @@
 ;; :bind ("C-c d" . sdcv-search)
 (require 'unicad)
 
-(autoload 'LilyPond-mode "lilypond-mode")
-(setq auto-mode-alist
-      (cons '("\\.ly$" . LilyPond-mode) auto-mode-alist))
-(add-hook 'LilyPond-mode-hook (lambda () (turn-on-font-lock)))
+;; lilypond-mode.el -- Major mode for editing GNU LilyPond music scores
+(require 'lilypond-mode)
+(setq auto-mode-alist (cons '("\\.ly$" . LilyPond-mode) auto-mode-alist))
 
-
+;; lilypond-quick-insert-mode.el
+(setq lyqi-default-language 'italiano)
+;; (setq lyqi-use-midi-default t)
+;; (setq lyqi-midi-keyboard-command "~/bin/mymidikbd")
+(load "lilypond-quick-insert-mode")
 ;; #+END_SRC
 
 ;; ** 完成配置
