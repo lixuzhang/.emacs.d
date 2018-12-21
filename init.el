@@ -2,7 +2,7 @@
 
 ;;; Header:
 
-;; Copyright (C) 2016, 2017  李旭章
+;; Copyright (C) 2016, 2017, 2018 李旭章
 
 ;; Author: 李旭章 <lixuzhang@lovefeeling.org>
 ;; Keywords: local
@@ -227,7 +227,7 @@
 (require 'package)
 (dolist (pa '(;;("gnu" . "http://elpa.gnu.org/packages/") ; 默认已有
               ("org" . "http://orgmode.org/elpa/")
-              ("popkit" . "http://elpa.popkit.org/packages/")
+              ;; ("popkit" . "http://elpa.popkit.org/packages/")
               ;;("melpa" . "http://melpa.org/packages/")
               ;;("marmalade" . "https://marmalade-repo.org/packages/")
               ))
@@ -268,7 +268,7 @@
       (setenv name value))))
 ;; 获取 gcc include paths 的方法
 ;; (process-lines "sh" "-c" "echo | cpp -x c++ -Wp,-v - 2>&1 | sed '/#/d;/ignoring/d;/End of/d;s/^ //g' | xargs cygpath.exe -w | sort")
-;; (semantic-gcc-get-include-paths "c++")
+;; 或 (semantic-gcc-get-include-paths "c++")
 
 ;; faces.el --- Lisp faces
 (require 'faces)
@@ -286,8 +286,7 @@
 (setq auto-save-default nil)
 (setq make-backup-files nil)
 (require 'files)
-(add-hook 'before-save-hook #'copyright-update)
-
+;; (add-hook 'before-save-hook #'copyright-update)
 
 ;; frame.el --- multi-frame management independent of window systems
 (setq initial-frame-alist '((fullscreen . fullboth)))
@@ -512,7 +511,8 @@
   :commands time-stamp
   :init (progn
           (setq time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S %Z %U")
-          (add-hook 'before-save-hook #'time-stamp)))
+          ;; (add-hook 'before-save-hook #'time-stamp)
+          ))
 
 ;; whitespace.el --- minor mode to visualize TAB, (HARD) SPACE, NEWLINE
 (req-package whitespace
@@ -562,7 +562,7 @@
                 ["子" "丑" "寅" "卯" "辰" "巳" "午" "未" "申" "酉" "戌" "亥"])
           (setq calendar-chinese-month-name-array
                 ["正月" "二月" "三月" "四月" "五月" "六月" "七月" "八月" "九月" "十月" "冬月" "腊月"])
-          (setq holiday-general-holidays ; 法定节假日
+          (setq holiday-general-holidays ; 法定假日
                 '((holiday-fixed 1 1 "新年")
                   (holiday-fixed 3 8 "妇女节")
                   (holiday-fixed 5 1 "劳动节")
@@ -570,12 +570,19 @@
                   (holiday-fixed 6 1 "儿童节")
                   (holiday-fixed 9 10 "教师节")
                   (holiday-fixed 10 1 "国庆节")))
-          (setq holiday-other-holidays
+          (setq holiday-local-holidays  ; 法定节日
+                '((holiday-fixed 3 12 "植树节")
+                  (holiday-fixed 5 12 "护士节")
+                  (holiday-fixed 7 1 "建党节")
+                  (holiday-fixed 8 1 "建军节")
+                  (holiday-fixed 11 8 "记者节")
+                  (holiday-fixed 12 13 "国家公祭日")))
+          (setq holiday-other-holidays  ; 民众节日
                 '((holiday-fixed 2 14 "情人节")
-                  (holiday-fixed 3 12 "植树节")
                   (holiday-fixed 4 1 "愚人节")
                   (holiday-float 5 0 2 "母亲节")
                   (holiday-float 6 0 3 "父亲节")
+                  (holiday-fixed 10 24 "程序员节")
                   (holiday-fixed 10 31 "万圣节")
                   (holiday-fixed 11 11 "光棍节")
                   (holiday-float 11 4 4 "感恩节")
@@ -811,7 +818,7 @@
             ;; :diminish org-indent-mode
 
             ;; ox.el
-            (setq org-export-with-toc             t
+            (setq org-export-with-toc             nil
                   org-export-with-section-numbers t
                   org-export-default-language     "zh-CN")
 
@@ -863,7 +870,10 @@
                      ("\\section{%s}" . "\\section*{%s}")
                      ("\\subsection{%s}" . "\\subsection*{%s}")
                      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
-            (setq org-latex-default-class "ctexart")))
+            (setq org-latex-default-class "ctexart")
+            (setq org-latex-image-default-width "")
+            (setq org-latex-image-default-height "")
+            (setq org-latex-image-default-option "")))
 ;;; ---------------------------------------------------------------------------
 ;; #+END_SRC
 
@@ -910,8 +920,9 @@
 
 ;; scheme.el --- Scheme (and DSSSL) editing mode
 (req-package scheme
-  :init (when (executable-find "guile")
-          (setq scheme-program-name "guile")))
+  ;; :init (when (executable-find "guile")
+  ;;         (setq scheme-program-name "guile"))
+  )
 
 ;; sql.el --- specialized comint.el for SQL interpreters
 (req-package sql
@@ -933,23 +944,17 @@
 
 ;; ispell.el --- interface to International Ispell Versions 3.1 and 3.2
 (req-package ispell
-  :init (progn
-          (when (executable-find "hunspell")
-            (setq ispell-program-name "hunspell"))
-          (unless (getenv "DICTIONARY")
-            (if (equal ispell-program-name "hunspell")
-                (setenv "DICTIONARY" "en_US-large")
-              (setenv "DICTIONARY" "en_US")))
-          (setq ispell-dictionary (getenv "DICTIONARY"))))
+  :config
+  (setq ispell-dictionary "english"))
 
 ;; flyspell.el --- On-the-fly spell checker
 (req-package flyspell
   :require ispell
   :commands (turn-on-flyspell flyspell-prog-mode)
   :diminish flyspell-mode
-  :init (when (executable-find ispell-program-name)
-          (add-hook 'text-mode-hook #'turn-on-flyspell)
-          (add-hook 'prog-mode-hook #'flyspell-prog-mode)))
+  :config (when (executable-find ispell-program-name)
+            (add-hook 'text-mode-hook #'turn-on-flyspell)
+            (add-hook 'prog-mode-hook #'flyspell-prog-mode)))
 
 ;; remember --- a mode for quickly jotting down things to remember
 (req-package remember
@@ -962,9 +967,9 @@
 
 ;; *** 第三方扩展
 ;; #+begin_src emacs-lisp
-  ;;; ===========================================================================
-  ;;; 第三方扩展
-  ;;; ===========================================================================
+;; ===========================================================================
+;; 第三方扩展
+;; ===========================================================================
 ;; (org-babel-load-file
 ;;  (expand-file-name "init-packages.org" user-emacs-directory))
 ;; (load
@@ -989,8 +994,7 @@
 (req-package ac-html-csswatcher)
 
 (req-package aggressive-fill-paragraph
-  ;; :config (afp-setup-recommended-hooks)
-  )
+  :config (afp-setup-recommended-hooks))
 
 ;; aggressive-indent.el --- Minor mode to aggressively keep your code always indented
 (req-package aggressive-indent
@@ -1001,7 +1005,8 @@
                          '(and (derived-mode-p 'c-mode 'c++-mode 'objc-mode 'java-mode)
                                (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
                                                    (thing-at-point 'line)))))
-            (global-aggressive-indent-mode 1)))
+            ;(global-aggressive-indent-mode 1)
+            ))
 
 ;; anzu.el --- Show number of matches in mode-line while searching
 (req-package anzu
@@ -1431,10 +1436,10 @@
                            (if (boundp 'helm-alive-p)
                                (symbol-value 'helm-alive-p))))
             ;; ECB 激活时不处理
-            (add-to-list 'golden-ratio-inhibit-functions
-                         (lambda ()
-                           (if (boundp 'ecb-minor-mode)
-                               (symbol-value 'ecb-minor-mode))))
+            ;; (add-to-list 'golden-ratio-inhibit-functions
+            ;;              (lambda ()
+            ;;                (if (boundp 'ecb-minor-mode)
+            ;;                    (symbol-value 'ecb-minor-mode))))
             (golden-ratio-mode 1)))
 
 (req-package google-c-style
@@ -1444,8 +1449,10 @@
           (add-hook 'c-mode-common-hook #'google-make-newline-indent)))
 
 (req-package graphviz-dot-mode
-  :init (unless (getenv "GRAPHVIZ_DOT")
-          (setenv "GRAPHVIZ_DOT" (executable-find "dot"))))
+  :init (progn
+          (unless (getenv "GRAPHVIZ_DOT")
+            (setenv "GRAPHVIZ_DOT" (executable-find "dot")))
+          (setq graphviz-dot-indent-width tab-width)))
 
 ;; helm.el --- Emacs incremental and narrowing framework
 (req-package helm
@@ -1798,8 +1805,9 @@
 (req-package perspective
   :requires desktop
   :commands persp-mode
-  :init (add-hook 'desktop-after-read-hook
-                  (lambda () (persp-mode 1))))
+  :init ;; (add-hook 'desktop-after-read-hook
+  ;;           (lambda () (persp-mode 1)))
+  )
 
 ;; (req-package persp-mode
 ;;   :commands persp-mode
@@ -1825,7 +1833,6 @@
 
 ;; php-mode.el --- Major mode for editing PHP code
 (req-package php-mode
-  :defer t
   :init (progn
           (setq php-executable (executable-find "php"))
           (setq php-template-compatibility nil))
@@ -1873,12 +1880,11 @@
   :init (progn
           ;; 加载前必须先定义 plantuml-plantuml-jar-path，如果找不到则出错。
           (setq plantuml-jar-path
-                (locate-file "plantuml.jar" exec-path)))
-  :config (plantuml-set-output-type "png"))
+                (locate-file "plantuml.jar" exec-path))))
 
 (req-package rainbow-delimiters
   :commands rainbow-delimiters-mode
-  :init (add-hook 'prog-mde-hook #'rainbow-delimiters-mode))
+  :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 ;; rainbow-mode.el --- Colorize color names in buffers
 (req-package rainbow-mode)
@@ -1897,10 +1903,6 @@
                  (define-key region-bindings-mode-map "n" 'mc/mark-next-like-this)
                  (define-key region-bindings-mode-map "m" 'mc/mark-more-like-this-extended)))
 
-(req-package rw-language-and-country-codes)
-(req-package rw-ispell)
-(req-package rw-hunspell)
-
 (req-package skewer-mode
   :diminish skewer-html-mode
   :config (skewer-setup))
@@ -1910,8 +1912,7 @@
 (req-package smart-tabs-mode
   :config (progn
             ;; (add-to-list 'smart-tab-disabled-major-modes 'shell-mode) ;; 没此变量
-            (smart-tabs-insinuate 'c 'c++ 'java 'javascript
-                                  'cperl 'python 'ruby 'nxml)))
+            (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python 'ruby 'nxml)))
 
 ;; smartscan.el --- Jumps between other symbols found at point
 (req-package smartscan
@@ -2132,13 +2133,12 @@
 
 ;; (req-package minimap)
 
-;; (req-package yasnippet
-;;   :diminish yas-minor-mode
-;;   :config
-;;   (yas-global-mode 1)
-;;   (req-package java-snippets)
-;;   (req-package php-auto-yasnippets)
-;;   (req-package vala-snippets))
+
+;; (req-package rw-language-and-country-codes)
+;; (req-package rw-ispell
+;;   :config (rw-ispell-set-up-pdicts))
+;; (req-package rw-hunspell
+;;   :config (rw-hunspell-setup))
 
 ;; session.el --- use variables, registers and buffer places across sessions
 ;; (req-package session
@@ -2182,6 +2182,14 @@
 ;;           (add-hook 'org-shiftleft-final-hook #'windmove-left)
 ;;           (add-hook 'org-shiftdown-final-hook #'windmove-down)
 ;;           (add-hook 'org-shiftright-final-hook #'windmove-right)))
+
+;; (req-package yasnippet
+;;   :diminish yas-minor-mode
+;;   :config
+;;   (yas-global-mode 1)
+;;   (req-package java-snippets)
+;;   (req-package php-auto-yasnippets)
+;;   (req-package vala-snippets))
 
 ;; (unless (package-installed-p 'r5rs)
 ;;   (package-install 'r5rs))
