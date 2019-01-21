@@ -114,12 +114,9 @@
  ;; GNU/Linux
  ((string-equal system-type "gnu/linux")
   (create-fontset-from-fontset-spec
-   "-outline-DejaVu Sans Mono-normal-normal-normal-mono-16-*-*-*-c-*-fontset-standard"))
- ;; Mac OS X
- ((string-equal system-type "darwin")
-  ;; TODO
-  ))
-
+   "-outline-DejaVu Sans Mono-normal-normal-normal-mono-16-*-*-*-c-*-fontset-standard")
+  ;; Mac OS X
+  ((string-equal system-type "darwin"))))
 
 ;; frame.c --- Generic frame functions.
 ;; 只有本设置才对窗口显示字体起作用，set-face-attribute、set-face-font 和
@@ -227,10 +224,10 @@
 (require 'package)
 (dolist (pa '(;;("gnu" . "http://elpa.gnu.org/packages/") ; 默认已有
               ("org" . "http://orgmode.org/elpa/")
-              ;; ("popkit" . "http://elpa.popkit.org/packages/")
-              ;;("melpa" . "http://melpa.org/packages/")
-              ;;("marmalade" . "https://marmalade-repo.org/packages/")
-              ))
+              ;; ("melpa" . "http://melpa.org/packages/")
+              ;; ("marmalade" . "https://marmalade-repo.org/packages/")
+              ("popkit" . "http://elpa.popkit.org/packages/")))
+
   (add-to-list 'package-archives pa t))
 (setq package-enable-at-startup nil)
 ;; #+END_SRC
@@ -511,8 +508,7 @@
   :commands time-stamp
   :init (progn
           (setq time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S %Z %U")
-          ;; (add-hook 'before-save-hook #'time-stamp)
-          ))
+          (add-hook 'before-save-hook #'time-stamp)))
 
 ;; whitespace.el --- minor mode to visualize TAB, (HARD) SPACE, NEWLINE
 (req-package whitespace
@@ -691,8 +687,8 @@
                   (semantic-gcc-get-include-paths "c"))
 
             ;; semantic/bovine/scm.el --- Semantic details for Scheme (guile)
-            (require 'semantic/bovine/scm)
-            ))
+            (require 'semantic/bovine/scm)))
+
 
 ;; srecode.el --- Semantic buffer evaluator.
 (req-package srecode
@@ -726,8 +722,8 @@
           (setq org-track-ordered-property-with-tag t)
           (setq org-todo-keywords
                 '((type "🗁PROJECT(P)" "🗲ACTION(A)" "🗒SOMEDAY/MAYBE(S)" "🛈REFERENCE(R)" "🚮TRASH(T)") ; 任务分类
-                  (sequence "☐(t)" "◯(h@/!)" "⭙(n@/!)" "⏳(w@/!)" "📆(s)" "✆(p/!)" "🗫(m/!)" "|" "☒(c@/!)" "☑(d)") ; 执行状态
-                  ))
+                  (sequence "☐(t)" "◯(h@/!)" "⭙(n@/!)" "⏳(w@/!)" "📆(s)" "✆(p/!)" "🗫(m/!)" "|" "☒(c@/!)" "☑(d)"))) ; 执行状态
+
           (setq org-todo-keyword-faces
                 '(("☐" :foreground "red" :weight bold)
                   ("◯" :foreground "magenta" :weight bold)
@@ -737,8 +733,8 @@
                   ("✆" :foreground "forest green" :weight bold)
                   ("🗫" :foreground "forest green" :weight bold)
                   ("☒" :foreground "forest green" :weight bold)
-                  ("☑" :foreground "forest green" :weight bold)
-                  ))
+                  ("☑" :foreground "forest green" :weight bold)))
+
           (setq org-use-fast-todo-selection t)
           (setq org-treat-S-cursor-todo-selection-as-state-change t)
           ;; (setq org-todo-state-tags-triggers
@@ -755,8 +751,8 @@
                 '((:startgroup) ("🗁" . ?P) ("🗲" . ?A) ("🗒" . ?M) ("🛈" . ?R) ("🚮" . ?X) (:endgroup) ; 类型
                   (:startgroup) ("🏠" . ?h) ("🏢" . ?o) ("🛒" . ?m) ("🚌" . ?w) (:endgroup) ; 情境
                   (:startgroup) ("💻" . ?c) ("📱" . ?p) (:endgroup) ; 工具
-                  (:startgroup) ("🏷" . ?b) ("🎔" . ?f) ("󳊙" . ?s) (:endgroup) ; 性质
-                  ))
+                  (:startgroup) ("🏷" . ?b) ("🎔" . ?f) ("󳊙" . ?s) (:endgroup))) ; 性质
+
           (setq org-tags-exclude-from-inheritance
                 '("🗁" "󳊙"))
           (setq org-fontify-done-headline t)
@@ -811,7 +807,7 @@
 
             ;; org-capture.el --- Fast note taking in Org-mode
             (require 'org-capture)
-            ;;("C-c c" . org-capture)
+            ;; ("C-c c" . org-capture)
 
             ;; org-indent.el --- Dynamic indentation for  Org-mode
             (require 'org-indent)
@@ -919,10 +915,10 @@
             (setq python-shell-interpreter "python3"))))
 
 ;; scheme.el --- Scheme (and DSSSL) editing mode
-(req-package scheme
+(req-package scheme)
   ;; :init (when (executable-find "guile")
   ;;         (setq scheme-program-name "guile"))
-  )
+
 
 ;; sql.el --- specialized comint.el for SQL interpreters
 (req-package sql
@@ -985,13 +981,14 @@
   (package-install 'sicp))
 
 ;;; ---------------------------------------------------------------------------
+(req-package ac-html-angular)
+(req-package ac-html-bootstrap)
+(req-package ac-html-csswatcher)
 
 ;; ace-pinyin.el --- Jump to Chinese characters using ace-jump-mode or aby
 (req-package ace-pinyin)
 
-(req-package ac-html-angular)
-(req-package ac-html-bootstrap)
-(req-package ac-html-csswatcher)
+(req-package ace-window)
 
 (req-package aggressive-fill-paragraph
   :config (afp-setup-recommended-hooks))
@@ -1004,9 +1001,8 @@
             (add-to-list 'aggressive-indent-dont-indent-if
                          '(and (derived-mode-p 'c-mode 'c++-mode 'objc-mode 'java-mode)
                                (null (string-match "\\([;{}]\\|\\b\\(if\\|for\\|while\\)\\b\\)"
-                                                   (thing-at-point 'line)))))
-            ;(global-aggressive-indent-mode 1)
-            ))
+                                                   (thing-at-point 'line)))))))
+
 
 ;; anzu.el --- Show number of matches in mode-line while searching
 (req-package anzu
@@ -1078,8 +1074,8 @@
              :contents-sources
              (list
               (cfw:cal-create-source "Orange") ; diary source
-              (cfw:org-create-source "Green")  ; orgmode source
-              )))))
+              (cfw:org-create-source "Green"))))))  ; orgmode source
+
 
 ;; calfw-cal.el --- calendar view for emacs diary
 (req-package calfw-cal
@@ -1457,6 +1453,7 @@
 ;; helm.el --- Emacs incremental and narrowing framework
 (req-package helm
   :diminish helm-mode
+  :bind ("M-x" . helm-M-x)
   :init (progn
           (setq helm-scroll-amount                    8
                 helm-split-window-in-side-p           t
@@ -1605,7 +1602,7 @@
 (req-package json-mode)
 
 (req-package jsx-mode
-  :mode "\\.jsx\\'" )
+  :mode "\\.jsx\\'")
 
 
 ;; kanban.el --- Parse org-todo headlines to use org-tables as Kanban tables
@@ -1621,6 +1618,8 @@
 (req-package lentic
   :require m-buffer
   :config (global-lentic-mode))
+
+(req-package lispy)
 
 ;; magit.el --- A Git porcelain inside Emacs
 (req-package magit
@@ -1653,13 +1652,12 @@
 
 ;; nameframe.el --- Manage frames by name.
 (req-package nameframe
-  :require (projectile perspective)
   :bind (("M-P" . nameframe-switch-frame)))
 
-;; nameframe-perspective.el --- Nameframe integration with perspective.el
-(req-package nameframe-perspective
-  :require nameframe
-  :config (nameframe-perspective-mode t))
+;; ;; nameframe-perspective.el --- Nameframe integration with perspective.el
+;; (req-package nameframe-perspective
+;;   :require nameframe
+;;   :config (nameframe-perspective-mode t))
 
 ;; nameframe-projectile.el --- Nameframe integration with Projectile
 (req-package nameframe-projectile
@@ -1761,75 +1759,54 @@
           (setq pangu-spacing-real-insert-separtor t)
           (add-hook 'text-mode-hook #'pangu-spacing-mode)))
 
-(req-package paredit
-  :commands enable-paredit-mode
-  :diminish paredit-mode
+(req-package parinfer
+  :require (lispy paredit)
+  :bind (("C-," . parinfer-toggle-mode))
   :init (progn
-          (add-hook 'lisp-mode-hook #'enable-paredit-mode)
-          (add-hook 'scheme-mode-hook #'enable-paredit-mode)
-          (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
-          (add-hook 'clojure-mode-hook #'enable-paredit-mode)))
+          (setq parinfer-extensions
+                '(defaults         ; should be included.
+                   pretty-parens   ; different paren styles for different modes.
+                   evil            ; If you use Evil.
+                   lispy           ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
+                   paredit         ; Introduce some paredit commands.
+                   smart-tab       ; C-b & C-f jump positions and smart shift with tab & S-tab.
+                   smart-yank))    ; Yank behavior depend on mode.
+          (add-hook 'clojure-mode-hook #'parinfer-mode)
+          (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
+          (add-hook 'common-lisp-mode-hook #'parinfer-mode)
+          (add-hook 'scheme-mode-hook #'parinfer-mode)
+          (add-hook 'lisp-mode-hook #'parinfer-mode)))
 
-(req-package paredit-everywhere
-  :commands paredit-everywhere-mode
-  :diminish paredit-everywhere-mode
-  :init (progn
-          (add-hook 'prog-mode-hook #'paredit-everywhere-mode)
-          (add-hook 'css-mode-hook #'paredit-everywhere-mode)))
+;; (req-package persp-projectile
+;;   :require (perspective projectile))
 
-(req-package paxedit
-  :commands paxedit-mode
-  :diminish paxedit-mode
-  :bind (("M-<right>" . paxedit-transpose-forward)
-         ("M-<left>" . paxedit-transpose-backward)
-         ("M-<up>" . paxedit-backward-up)
-         ("M-<down>" . paxedit-backward-end)
-         ("M-b" . paxedit-previous-symbol)
-         ("M-f" . paxedit-next-symbol)
-         ("C-%" . paxedit-copy)
-         ("C-&" . paxedit-kill)
-         ("C-*" . paxedit-delete)
-         ("C-^" . paxedit-sexp-raise)
-         ("M-u" . paxedit-symbol-change-case)
-         ("C-@" . paxedit-symbol-copy)
-         ("C-#" . paxedit-symbol-kill))
-  :init (progn
-          (add-hook 'lisp-mode-hook #'paxedit-mode)
-          (add-hook 'scheme-mode-hook #'paxedit-mode)
-          (add-hook 'emacs-lisp-mode-hook #'paxedit-mode)
-          (add-hook 'clojure-mode-hook #'paxedit-mode)))
-
-(req-package persp-projectile
-  :require (perspective projectile))
-
-(req-package perspective
-  :requires desktop
-  :commands persp-mode
-  :init ;; (add-hook 'desktop-after-read-hook
-  ;;           (lambda () (persp-mode 1)))
-  )
-
-;; (req-package persp-mode
+;; (req-package perspective
+;;   :requires desktop
 ;;   :commands persp-mode
-;;   :diminish persp-mode
-;;   :init (progn
-;;           (setq wg-morph-on nil) ;; switch off animation
-;;           (setq persp-autokill-buffer-on-remove 'kill-weak)
-;;           (add-hook 'after-init-hook (lambda ()
-;;                                        (persp-mode 1)))))
+;;   :init (add-hook 'desktop-after-read-hook (lambda () (persp-mode 1))))
 
-;; (req-package persp-mode-projectile-bridge
-;;   :require (persp-mode projectile)
-;;   :commands persp-mode-projectile-bridge-mode
-;;   :init (progn
-;;           (add-hook 'after-init-hook
-;;                     (lambda ()
-;;                       (persp-mode-projectile-bridge-mode 1)))
-;;           (add-hook 'persp-mode-projectile-bridge-mode-hook
-;;                     (lambda ()
-;;                       (if persp-mode-projectile-bridge-mode
-;;                           (persp-mode-projectile-bridge-find-perspectives-for-all-buffers)
-;;                         (persp-mode-projectile-bridge-kill-perspectives))))))
+
+(req-package persp-mode
+  :commands persp-mode
+  :diminish persp-mode
+  :init (progn
+          (setq wg-morph-on nil) ;; switch off animation
+          (setq persp-autokill-buffer-on-remove 'kill-weak)
+          (add-hook 'after-init-hook (lambda ()
+                                       (persp-mode 1)))))
+
+(req-package persp-mode-projectile-bridge
+  :require (persp-mode projectile)
+  :commands persp-mode-projectile-bridge-mode
+  :init (progn
+          (add-hook 'after-init-hook
+                    (lambda ()
+                      (persp-mode-projectile-bridge-mode 1)))
+          (add-hook 'persp-mode-projectile-bridge-mode-hook
+                    (lambda ()
+                      (if persp-mode-projectile-bridge-mode
+                          (persp-mode-projectile-bridge-find-perspectives-for-all-buffers)
+                        (persp-mode-projectile-bridge-kill-perspectives))))))
 
 ;; php-mode.el --- Major mode for editing PHP code
 (req-package php-mode
@@ -1919,9 +1896,9 @@
   :config (global-smartscan-mode 1))
 
 (req-package smex
-  :bind (("M-x" . smex)
-         ("M-X" . smex-major-mode-commands)
-         ("C-c M-x" . execute-extended-command))
+  ;; :bind (("M-x" . smex)
+  ;;        ("M-X" . smex-major-mode-commands)
+  ;;        ("C-c M-x" . execute-extended-command))
   :config (smex-initialize))
 
 ;; smooth-scrolling.el --- Make emacs scroll smoothly
@@ -2000,7 +1977,7 @@
                                 (wconf-save))))))
 
 (req-package web-mode
-  :mode ("\\.html?\\'" "\\.tpl\\'" "\\.tpla\\'" "\\.phtml\\'"
+  :mode ("\\.html?\\'" "\\.tpl\\'" "\\.tpla\\'" "\\.php\\'" "\\.phtml\\'"
          "\\.[agj]sp\\'" "\\.as[cp]x\\'" "\\.erb\\'" "\\.mustache\\'" "\\.djhtml\\'")
   :init (progn
           (setq web-mode-enable-auto-pairing              t)
@@ -2133,6 +2110,43 @@
 
 ;; (req-package minimap)
 
+;; (req-package paredit
+;;   :commands enable-paredit-mode
+;;   :diminish paredit-mode
+;;   :init (progn
+;;           (add-hook 'lisp-mode-hook #'enable-paredit-mode)
+;;           (add-hook 'scheme-mode-hook #'enable-paredit-mode)
+;;           (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
+;;           (add-hook 'clojure-mode-hook #'enable-paredit-mode)))
+
+;; (req-package paredit-everywhere
+;;   :commands paredit-everywhere-mode
+;;   :diminish paredit-everywhere-mode
+;;   :init (progn
+;;           (add-hook 'prog-mode-hook #'paredit-everywhere-mode)
+;;           (add-hook 'css-mode-hook #'paredit-everywhere-mode)))
+
+;; (req-package paxedit
+;;   :commands paxedit-mode
+;;   :diminish paxedit-mode
+;;   :bind (("M-<right>" . paxedit-transpose-forward)
+;;          ("M-<left>" . paxedit-transpose-backward)
+;;          ("M-<up>" . paxedit-backward-up)
+;;          ("M-<down>" . paxedit-backward-end)
+;;          ("M-b" . paxedit-previous-symbol)
+;;          ("M-f" . paxedit-next-symbol)
+;;          ("C-%" . paxedit-copy)
+;;          ("C-&" . paxedit-kill)
+;;          ("C-*" . paxedit-delete)
+;;          ("C-^" . paxedit-sexp-raise)
+;;          ("M-u" . paxedit-symbol-change-case)
+;;          ("C-@" . paxedit-symbol-copy)
+;;          ("C-#" . paxedit-symbol-kill))
+;;   :init (progn
+;;           (add-hook 'lisp-mode-hook #'paxedit-mode)
+;;           (add-hook 'scheme-mode-hook #'paxedit-mode)
+;;           (add-hook 'emacs-lisp-mode-hook #'paxedit-mode)
+;;           (add-hook 'clojure-mode-hook #'paxedit-mode)))
 
 ;; (req-package rw-language-and-country-codes)
 ;; (req-package rw-ispell
