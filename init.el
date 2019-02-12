@@ -915,10 +915,9 @@
             (setq python-shell-interpreter "python3"))))
 
 ;; scheme.el --- Scheme (and DSSSL) editing mode
-(req-package scheme)
-  ;; :init (when (executable-find "guile")
-  ;;         (setq scheme-program-name "guile"))
-
+(req-package scheme
+  :init (when (executable-find "guile")
+          (setq scheme-program-name "guile")))
 
 ;; sql.el --- specialized comint.el for SQL interpreters
 (req-package sql
@@ -1127,7 +1126,7 @@
 
 ;; clean-buffers.el --- clean useless buffers
 (req-package clean-buffers
-  :config (dolist (bn '("*CEDET Global*" "*Messages*" "\\*helm-mode-\\*"))
+  :config (dolist (bn '("*CEDET Global*" "*Messages*" "*Help*" "\\*helm-mode-\\*"))
             (add-to-list 'clean-buffers-useless-buffer-names bn)))
 
 ;; comment-dwim-2.el --- An all-in-one comment command to rule them all
@@ -1239,17 +1238,13 @@
 
 ;; dtrt-indent.el --- Adapt to foreign indentation offsets
 (req-package dtrt-indent
-  :init (setq dtrt-indent-verbosity 0) ; Silent:0  Normal:1  Verbose:2  Diagnostics:3
+  :init (setq dtrt-indent-verbosity 1) ; Silent:0  Normal:1  Verbose:2  Diagnostics:3
   :config (dtrt-indent-mode 1))
 
 (req-package duplicate-thing
   :bind ("M-c" . duplicate-thing))
 
 (req-package dynamic-ruler)
-
-;; (req-package easy-lentic
-;;   :require lentic
-;;   :config (easy-lentic-mode-setup))
 
 ;; ecb.el --- a code browser for Emacs
 (req-package ecb
@@ -1394,6 +1389,7 @@
 (req-package gitconfig-mode)
 
 (req-package git-gutter-fringe
+  :diminish git-gutter-mode
   :config (global-git-gutter-mode 1))
 
 (req-package gitignore-mode)
@@ -1617,6 +1613,7 @@
 ;; lentic-mode.el --- minor mode for lentic buffers
 (req-package lentic
   :require m-buffer
+  :diminish lentic-mode
   :config (global-lentic-mode))
 
 (req-package lispy)
@@ -1746,7 +1743,8 @@
   :require org
   :bind (("C-;" . ort/capture-todo)
          ("C-'" . ort/capture-checkitem)
-         ("C-`" . ort/goto-todos)))
+         ("C-`" . ort/goto-todos))
+  :init (setq ort/prefix-arg-directory "~/life/"))
 
 (req-package org-time-budgets
   :require org)
@@ -1761,6 +1759,7 @@
 
 (req-package parinfer
   :require (lispy paredit)
+  :diminish parinfer-mode
   :bind (("C-," . parinfer-toggle-mode))
   :init (progn
           (setq parinfer-extensions
@@ -2040,6 +2039,10 @@
 ;; (el-get 'sync)
 
 ;; (req-package esup)
+
+;; (req-package easy-lentic
+;;   :require lentic
+;;   :config (easy-lentic-mode-setup))
 
 ;; (req-package guile-scheme
 ;;   :require scheme)
