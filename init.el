@@ -1562,6 +1562,9 @@
   :diminish hungry-delete-mode
   :config (global-hungry-delete-mode))
 
+;; hydra.el --- Make bindings that stick around.
+(req-package hydra)
+
 ;; ido-completing-read+.el --- A completing-read-function using ido
 (req-package ido-completing-read+
   :require ido
@@ -2043,6 +2046,12 @@
 ;; (req-package easy-lentic
 ;;   :require lentic
 ;;   :config (easy-lentic-mode-setup))
+
+;; (req-package ergoemacs-mode
+;;   :init (progn
+;;           (setq ergoemacs-theme nil)
+;;           (setq ergoemacs-keyboard-layout "programmer-dv"))
+;;   :config (ergoemacs-mode 1))
 
 ;; (req-package guile-scheme
 ;;   :require scheme)
