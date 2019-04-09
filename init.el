@@ -223,11 +223,15 @@
 ;; package.el --- Simple package system for Emacs
 (require 'package)
 (dolist (pa '(;;("gnu" . "http://elpa.gnu.org/packages/") ; 默认已有
-              ("org" . "http://orgmode.org/elpa/")
+              ;; ("org" . "http://orgmode.org/elpa/")
               ;; ("melpa" . "http://melpa.org/packages/")
               ;; ("marmalade" . "https://marmalade-repo.org/packages/")
-              ("popkit" . "http://elpa.popkit.org/packages/")))
-
+              ;; ("popkit" . "http://elpa.popkit.org/packages/")
+              ("GNU ELPA" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+              ("MELPA" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+              ;; ("MELPA Stable" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa-stable/")
+              ;; ("Marmalade" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/marmalade/")
+              ("Org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
   (add-to-list 'package-archives pa t))
 (setq package-enable-at-startup nil)
 ;; #+END_SRC
@@ -347,9 +351,9 @@
 
 ;; (require 'bind-key)
 ;; (require 'diminish)
-;; (setq use-package-always-ensure t)
-;; (setq use-package-debug t)
-;; (setq use-package-verbose t)
+(setq use-package-always-ensure t)
+(setq use-package-debug t)
+(setq use-package-verbose t)
 (eval-when-compile
   (require 'use-package))
 (setq req-package-log-level 'error)
@@ -373,7 +377,7 @@
 ;; battery.el --- display battery status information
 (req-package battery
   :commands display-battery-mode
-  :init (add-hook 'after-init-hook #'display-battery-mode))
+  :config (add-hook 'after-init-hook #'display-battery-mode))
 
 ;; bookmark.el --- set bookmarks, maybe annotate them, jump to them later
 (req-package bookmark)
@@ -402,9 +406,9 @@
 ;; hexl.el --- edit a file in a hex dump format using the hexl filter
 (req-package hexl
   :commands (hexl-follow-line hexl-active-ruler)
-  :init (progn
-          (add-hook 'hexl-mode-hook #'hexl-follow-line)
-          (add-hook 'hexl-mode-hook #'hexl-activate-ruler)))
+  :config (progn
+            (add-hook 'hexl-mode-hook #'hexl-follow-line)
+            (add-hook 'hexl-mode-hook #'hexl-activate-ruler)))
 
 ;; hippie-exp.el --- expand text trying various ways to find its expansion
 (req-package hippie-exp
@@ -454,7 +458,7 @@
 ;; linum.el --- display line numbers in the left margin
 (req-package linum
   :commands linum-mode
-  :init (add-hook 'prog-mode-hook #'linum-mode))
+  :config (add-hook 'prog-mode-hook #'linum-mode))
 
 ;; paren.el --- highlight matching paren
 (req-package paren
@@ -506,9 +510,8 @@
 ;; time-stamp.el --- Maintain last change time stamps in files edited by Emacs
 (req-package time-stamp
   :commands time-stamp
-  :init (progn
-          (setq time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S %Z %U")
-          (add-hook 'before-save-hook #'time-stamp)))
+  :init (setq time-stamp-format "%:y-%02m-%02d %02H:%02M:%02S %Z %U")
+  :config (add-hook 'before-save-hook #'time-stamp))
 
 ;; whitespace.el --- minor mode to visualize TAB, (HARD) SPACE, NEWLINE
 (req-package whitespace
@@ -893,8 +896,8 @@
 ;; executable.el --- base functionality for executable interpreter scripts
 (req-package executable
   :commands executable-make-buffer-file-executable-if-script-p
-  :init (add-hook 'after-save-hook
-                  #'executable-make-buffer-file-executable-if-script-p))
+  :config (add-hook 'after-save-hook
+                    #'executable-make-buffer-file-executable-if-script-p))
 
 ;; gdb-mi.el --- User Interface for running GDB
 (req-package gdb-mi
@@ -905,7 +908,7 @@
 (req-package hideshow
   :commands hs-minor-mode
   :diminish hs-minor-mode
-  :init (add-hook 'prog-mode-hook #'hs-minor-mode))
+  :config (add-hook 'prog-mode-hook #'hs-minor-mode))
 
 ;; python.el --- Python's flying circus support for Emacs
 (req-package python
@@ -1017,13 +1020,12 @@
 (req-package artbollocks-mode
   :commands artbollocks-mode
   :diminish artbollocks-mode
-  :init (progn
-          (setq artbollocks-weasel-words-regex
-                (concat "\\b\\(many\\|various\\|very\\|fairly\\|several\\|extremely\\|exceedingly\\|quite\\|remarkably\\|few\\|surprisingly\\|mostly\\|largely\\|huge\\|tiny\\|\\(\\(are\\|is\\) a number\\)\\|excellent\\|interestingly\\|significantly\\|substantially\\|clearly\\|vast\\|relatively\\|completely\\)\\b"
-                        (regexp-opt '("许多" "几乎" "很少" "差不多" "有点" "大量"
-                                      "大致" "迟点" "迟些" "过几天" "大体上")
-                                    t)))
-          (add-hook 'text-mode-hook #'artbollocks-mode)))
+  :init (setq artbollocks-weasel-words-regex
+              (concat "\\b\\(many\\|various\\|very\\|fairly\\|several\\|extremely\\|exceedingly\\|quite\\|remarkably\\|few\\|surprisingly\\|mostly\\|largely\\|huge\\|tiny\\|\\(\\(are\\|is\\) a number\\)\\|excellent\\|interestingly\\|significantly\\|substantially\\|clearly\\|vast\\|relatively\\|completely\\)\\b"
+                      (regexp-opt '("许多" "几乎" "很少" "差不多" "有点" "大量"
+                                    "大致" "迟点" "迟些" "过几天" "大体上")
+                                  t)))
+  :config (add-hook 'text-mode-hook #'artbollocks-mode))
 
 (req-package auto-correct)
 (req-package captain)
@@ -1090,10 +1092,10 @@
 ;; c-eldoc.el --- helpful description of the arguments to C functions
 (req-package c-eldoc
   :commands c-turn-on-eldoc-mode
-  :init (progn
-          (setq c-eldoc-cpp-command "cpp")
-          (add-hook 'c-mode-hook #'c-turn-on-eldoc-mode)
-          (add-hook 'c++-mode-hook #'c-turn-on-eldoc-mode)))
+  :init (setq c-eldoc-cpp-command "cpp")
+  :config (progn
+            (add-hook 'c-mode-hook #'c-turn-on-eldoc-mode)
+            (add-hook 'c++-mode-hook #'c-turn-on-eldoc-mode)))
 
 ;; chinese-fonts-setup.el --- A fonts config tool enforcing double-width Chinese character display
 (req-package chinese-fonts-setup
@@ -1145,25 +1147,25 @@
           (setq company-tooltip-limit 20)                      ; bigger popup window
           (setq company-tooltip-align-annotations 't)          ; align annotations to the right tooltip border
           (setq company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
-          (setq company-begin-commands '(self-insert-command)) ; start autocompletion only after typing
-          (add-hook 'after-init-hook #'global-company-mode)))
+          (setq company-begin-commands '(self-insert-command))) ; start autocompletion only after typing
+  :config (add-hook 'after-init-hook #'global-company-mode))
 
 ;; company-c-headers.el --- Company mode backend for C/C++ header files
 (req-package company-c-headers
   :require (company semantic)
   :commands company-c-headers
-  :init (progn
-          (add-hook 'c-mode-hook
-                    (lambda ()
-                      (setq company-c-headers-path-system
-                            (semantic-gcc-get-include-paths "c"))))
-          (add-hook 'c++-mode-hook
-                    (lambda ()
-                      (setq company-c-headers-path-system
-                            (semantic-gcc-get-include-paths "c++"))))
-          (add-to-list 'company-backends #'company-c-headers)))
+  :config (progn
+            (add-hook 'c-mode-hook
+                      (lambda ()
+                        (setq company-c-headers-path-system
+                              (semantic-gcc-get-include-paths "c"))))
+            (add-hook 'c++-mode-hook
+                      (lambda ()
+                        (setq company-c-headers-path-system
+                              (semantic-gcc-get-include-paths "c++")))))
+  :config (add-to-list 'company-backends #'company-c-headers))
 
-;; company-flx.el --- flx based fuzzy matching for company -*- lexical-binding: t -*-
+;; company-flx.el --- flx based fuzzy matching for company
 (req-package company-flx
   :require company
   :config (company-flx-mode +1))
@@ -1175,9 +1177,9 @@
 (req-package company-php
   :require (company php-mode)
   :commands company-ac-php-backend
-  :init (add-hook 'php-mode-hook
-                  (lambda ()
-                    (add-to-list 'company-backends #'company-ac-php-backend))))
+  :config (add-hook 'php-mode-hook
+                    (lambda ()
+                      (add-to-list 'company-backends #'company-ac-php-backend))))
 
 (req-package company-quickhelp
   :require company)
@@ -1189,7 +1191,7 @@
 (req-package company-statistics
   :require company
   :commands company-statistics-mode
-  :init (add-hook 'after-init-hook #'company-statistics-mode))
+  :config (add-hook 'after-init-hook #'company-statistics-mode))
 
 (req-package company-web
   :require (company web-mode)
@@ -1274,8 +1276,8 @@
 (req-package ede-php-autoload
   :require (ede php-mode)
   :commands ede-php-autoload-mode
-  :init (progn
-          (add-hook 'php-mode-hook #'ede-php-autoload-mode)))
+  :config (progn
+            (add-hook 'php-mode-hook #'ede-php-autoload-mode)))
 
 ;; ede-php-autoload-composer-installers.el --- Composer installers support for ede-php-autoload
 (req-package ede-php-autoload-composer-installers
@@ -1288,21 +1290,22 @@
 ;; electric-case.el --- insert camelCase, snake_case words without "Shift"ing
 (req-package electric-case
   :commands (electric-case-ahk-init electric-case-c-init electric-case-java-init electric-case-scala-init)
-  :init (progn
-          (add-hook 'ahk-mode-hook #'electric-case-ahk-init)
-          (add-hook 'c-mode-hook #'electric-case-c-init)
-          (add-hook 'java-mode-hook #'electric-case-java-init)
-          (add-hook 'scala-mode-hook #'electric-case-scala-init)))
+  :config (progn
+            (add-hook 'ahk-mode-hook #'electric-case-ahk-init)
+            (add-hook 'c-mode-hook #'electric-case-c-init)
+            (add-hook 'java-mode-hook #'electric-case-java-init)
+            (add-hook 'scala-mode-hook #'electric-case-scala-init)))
 
 ;; electric-operator.el --- Automatically add spaces around operators
 ;; 发展过程：smart-operator => electric-spacing => electric-operator
 (req-package electric-operator
-  :config (progn
-            (apply 'electric-operator-add-rules-for-mode 'php-mode
-                   electric-operator-prog-mode-rules)
-            (electric-operator-add-rules-for-mode 'php-mode
-                                                  (cons "->" "->")
-                                                  (cons "=>" "=>"))))
+  ;; :config (progn
+  ;;           (apply 'electric-operator-add-rules-for-mode 'php-mode
+  ;;                  electric-operator-prog-mode-rules)
+  ;;           (electric-operator-add-rules-for-mode 'php-mode
+  ;;                                                 (cons "->" "->")
+  ;;                                                 (cons "=>" "=>")))
+  )
 
 ;; Zen Coding => Emmet
 (req-package emmet-mode
@@ -1310,10 +1313,11 @@
   :diminish emmet-mode
   :init (progn
           (setq emmet-move-cursor-between-quotes t)
-          (setq emmet-expand-jsx-className? t)
-          (add-hook 'sgml-mode-hook #'emmet-mode)
-          (add-hook 'css-mode-hook  #'emmet-mode)
-          (add-hook 'web-mode-hook #'emmet-mode)))
+          (setq emmet-expand-jsx-className? t))
+  :config (progn
+            (add-hook 'sgml-mode-hook #'emmet-mode)
+            (add-hook 'css-mode-hook  #'emmet-mode)
+            (add-hook 'web-mode-hook #'emmet-mode)))
 
 (req-package emms
   :init (progn
@@ -1337,7 +1341,7 @@
 (req-package fic-mode
   :commands fic-mode
   :diminish fic-mode
-  :init (add-hook 'prog-mode-hook #'fic-mode))
+  :config (add-hook 'prog-mode-hook #'fic-mode))
 
 (req-package figlet)
 
@@ -1355,7 +1359,7 @@
 (req-package flycheck-color-mode-line
   :require flycheck
   :commands flycheck-color-mode-line-mode
-  :init (add-hook 'flycheck-mode-hook #'flycheck-color-mode-line-mode))
+  :config (add-hook 'flycheck-mode-hook #'flycheck-color-mode-line-mode))
 
 (req-package flycheck-package
   :require (flycheck package-lint)
@@ -1378,11 +1382,11 @@
 (req-package ggtags
   :commands ggtags-mode
   :init (progn
-          (setq gtags-suggested-key-mapping t)
-          (add-hook 'c-mode-common-hook
+          (setq gtags-suggested-key-mapping t))
+  :config (add-hook 'c-mode-common-hook
                     (lambda ()
                       (when (derived-mode-p 'c-mode 'c++-mode 'java-mode 'asm-mode)
-                        (ggtags-mode 1))))))
+                        (ggtags-mode 1)))))
 
 (req-package gitattributes-mode)
 
@@ -1436,9 +1440,9 @@
 
 (req-package google-c-style
   :commands (google-set-c-style google-make-newline-indent)
-  :init (progn
-          (add-hook 'c-mode-common-hook #'google-set-c-style)
-          (add-hook 'c-mode-common-hook #'google-make-newline-indent)))
+  :config (progn
+            (add-hook 'c-mode-common-hook #'google-set-c-style)
+            (add-hook 'c-mode-common-hook #'google-make-newline-indent)))
 
 (req-package graphviz-dot-mode
   :init (progn
@@ -1465,14 +1469,14 @@
                 helm-locate-fuzzy-match               t
                 helm-lisp-fuzzy-completion            t)
           (when (executable-find "curl")
-            (setq helm-google-suggest-use-curl-p t))
-          (add-hook 'helm-minibuffer-setup-hook
-                    (lambda () (abbrev-mode -1))))
+            (setq helm-google-suggest-use-curl-p t)))
   :config (progn
             (require 'helm-config)
             (require 'helm-grep)
             (helm-mode 1)
-            (helm-autoresize-mode 1)))
+            (helm-autoresize-mode 1)
+            (add-hook 'helm-minibuffer-setup-hook
+                      (lambda () (abbrev-mode -1)))))
 
 (req-package helm-backup
   :require helm)
@@ -1504,13 +1508,14 @@
                 helm-gtags-use-input-at-cursor t
                 helm-gtags-pulse-at-cursor t
                 helm-gtags-prefix-key "\C-cg"
-                helm-gtags-suggested-key-mapping t)
-          (add-hook 'dired-mode-hook  #'helm-gtags-mode)
-          (add-hook 'eshell-mode-hook #'helm-gtags-mode)
-          (add-hook 'c-mode-hook      #'helm-gtags-mode)
-          (add-hook 'c++-mode-hook    #'helm-gtags-mode)
-          (add-hook 'java-mode-hook   #'helm-gtags-mode)
-          (add-hook 'asm-mode-hook    #'helm-gtags-mode)))
+                helm-gtags-suggested-key-mapping t))
+  :config (progn
+            (add-hook 'dired-mode-hook  #'helm-gtags-mode)
+            (add-hook 'eshell-mode-hook #'helm-gtags-mode)
+            (add-hook 'c-mode-hook      #'helm-gtags-mode)
+            (add-hook 'c++-mode-hook    #'helm-gtags-mode)
+            (add-hook 'java-mode-hook   #'helm-gtags-mode)
+            (add-hook 'asm-mode-hook    #'helm-gtags-mode)))
 
 ;; helm-make.el --- Select a Makefile target with helm
 (req-package helm-make
@@ -1549,13 +1554,14 @@
 ;; hideshow-org.el --- Provides org-mode like hide and show for hideshow.el
 (req-package hideshow-org
   :commands hs-org/minor-mode
-  :init (add-hook 'prog-mode-hook #'hs-org/minor-mode))
+  :config (add-hook 'prog-mode-hook #'hs-org/minor-mode))
 
 ;; hideshowvis.el --- Add markers to the fringe for regions foldable by hideshow.el
 (req-package hideshowvis
   :commands hideshowvis-enable
-  :init (add-hook 'prog-mode-hook #'hideshowvis-enable)
-  :config (hideshowvis-symbols))
+  :config (progn
+            (add-hook 'prog-mode-hook #'hideshowvis-enable)
+            (hideshowvis-symbols)))
 
 ;; hungry-delete.el --- hungry delete minor mode
 (req-package hungry-delete
@@ -1596,7 +1602,7 @@
   :commands js2-minor-mode
   :mode "\\.js\\'"
   :interpreter "node"
-  :init (add-hook 'js-mode-hook #'js2-minor-mode))
+  :config (add-hook 'js-mode-hook #'js2-minor-mode))
 
 (req-package json-mode)
 
@@ -1676,7 +1682,7 @@
   :require (org php-mode))
 
 (req-package org-chinese-utils
-  :require (org ox)
+  :require org
   :config (org-chinese-utils-enable))
 
 (req-package ox-bibtex-chinese
@@ -1691,9 +1697,8 @@
 (req-package org-bullets
   :require org
   :commands org-bullets-mode
-  :init (progn
-          (setq org-bullets-bullet-list '("◉" "☯" "🍁" "🍀" "⚝" "🔯" "🌼")) ; ⁂❖🌸🏵🏶✿❉
-          (add-hook 'org-mode-hook #'org-bullets-mode)))
+  :init (setq org-bullets-bullet-list '("◉" "☯" "🍁" "🍀" "⚝" "🔯" "🌼")) ; ⁂❖🌸🏵🏶✿❉
+  :config (add-hook 'org-mode-hook #'org-bullets-mode))
 
 (req-package org-doing
   :require org
@@ -1710,19 +1715,19 @@
 (req-package org-present
   :require org
   :commands org-present
-  :init (progn
-          (add-hook 'org-present-mode-hook
-                    (lambda ()
-                      (org-present-big)
-                      (org-display-inline-images)
-                      (org-present-hide-cursor)
-                      (org-present-read-only)))
-          (add-hook 'org-present-mode-quit-hook
-                    (lambda ()
-                      (org-present-small)
-                      (org-remove-inline-images)
-                      (org-present-show-cursor)
-                      (org-present-read-write)))))
+  :config (progn
+            (add-hook 'org-present-mode-hook
+                      (lambda ()
+                        (org-present-big)
+                        (org-display-inline-images)
+                        (org-present-hide-cursor)
+                        (org-present-read-only)))
+            (add-hook 'org-present-mode-quit-hook
+                      (lambda ()
+                        (org-present-small)
+                        (org-remove-inline-images)
+                        (org-present-show-cursor)
+                        (org-present-read-write)))))
 
 ;; org-eww => org-preview-html
 (req-package org-preview-html
@@ -1756,28 +1761,27 @@
 (req-package pangu-spacing
   :commands pangu-spacing-mode
   :diminish pangu-spacing-mode
-  :init (progn
-          (setq pangu-spacing-real-insert-separtor t)
-          (add-hook 'text-mode-hook #'pangu-spacing-mode)))
+  :init (setq pangu-spacing-real-insert-separtor t)
+  :config (add-hook 'text-mode-hook #'pangu-spacing-mode))
 
 (req-package parinfer
   :require (lispy paredit)
   :diminish parinfer-mode
   :bind (("C-," . parinfer-toggle-mode))
-  :init (progn
-          (setq parinfer-extensions
-                '(defaults         ; should be included.
-                   pretty-parens   ; different paren styles for different modes.
-                   evil            ; If you use Evil.
-                   lispy           ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
-                   paredit         ; Introduce some paredit commands.
-                   smart-tab       ; C-b & C-f jump positions and smart shift with tab & S-tab.
-                   smart-yank))    ; Yank behavior depend on mode.
-          (add-hook 'clojure-mode-hook #'parinfer-mode)
-          (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
-          (add-hook 'common-lisp-mode-hook #'parinfer-mode)
-          (add-hook 'scheme-mode-hook #'parinfer-mode)
-          (add-hook 'lisp-mode-hook #'parinfer-mode)))
+  :init (setq parinfer-extensions
+              '(defaults         ; should be included.
+                 pretty-parens   ; different paren styles for different modes.
+                 evil            ; If you use Evil.
+                 lispy           ; If you use Lispy. With this extension, you should install Lispy and do not enable lispy-mode directly.
+                 paredit         ; Introduce some paredit commands.
+                 smart-tab       ; C-b & C-f jump positions and smart shift with tab & S-tab.
+                 smart-yank))    ; Yank behavior depend on mode.
+  :config (progn
+            (add-hook 'clojure-mode-hook #'parinfer-mode)
+            (add-hook 'emacs-lisp-mode-hook #'parinfer-mode)
+            (add-hook 'common-lisp-mode-hook #'parinfer-mode)
+            (add-hook 'scheme-mode-hook #'parinfer-mode)
+            (add-hook 'lisp-mode-hook #'parinfer-mode)))
 
 ;; (req-package persp-projectile
 ;;   :require (perspective projectile))
@@ -1785,7 +1789,7 @@
 ;; (req-package perspective
 ;;   :requires desktop
 ;;   :commands persp-mode
-;;   :init (add-hook 'desktop-after-read-hook (lambda () (persp-mode 1))))
+;;   :config (add-hook 'desktop-after-read-hook (lambda () (persp-mode 1))))
 
 
 (req-package persp-mode
@@ -1793,22 +1797,21 @@
   :diminish persp-mode
   :init (progn
           (setq wg-morph-on nil) ;; switch off animation
-          (setq persp-autokill-buffer-on-remove 'kill-weak)
-          (add-hook 'after-init-hook (lambda ()
-                                       (persp-mode 1)))))
+          (setq persp-autokill-buffer-on-remove 'kill-weak))
+  :config (add-hook 'after-init-hook (lambda () (persp-mode 1))))
 
 (req-package persp-mode-projectile-bridge
   :require (persp-mode projectile)
   :commands persp-mode-projectile-bridge-mode
-  :init (progn
-          (add-hook 'after-init-hook
-                    (lambda ()
-                      (persp-mode-projectile-bridge-mode 1)))
-          (add-hook 'persp-mode-projectile-bridge-mode-hook
-                    (lambda ()
-                      (if persp-mode-projectile-bridge-mode
-                          (persp-mode-projectile-bridge-find-perspectives-for-all-buffers)
-                        (persp-mode-projectile-bridge-kill-perspectives))))))
+  :config (progn
+            (add-hook 'after-init-hook
+                      (lambda ()
+                        (persp-mode-projectile-bridge-mode 1)))
+            (add-hook 'persp-mode-projectile-bridge-mode-hook
+                      (lambda ()
+                        (if persp-mode-projectile-bridge-mode
+                            (persp-mode-projectile-bridge-find-perspectives-for-all-buffers)
+                          (persp-mode-projectile-bridge-kill-perspectives))))))
 
 ;; php-mode.el --- Major mode for editing PHP code
 (req-package php-mode
@@ -1822,7 +1825,7 @@
 (req-package php-boris-minor-mode
   :require (php-mode php-boris)
   :commands php-boris-minor-mode
-  :init (add-hook 'php-mode-hook #'php-boris-minor-mode))
+  :config (add-hook 'php-mode-hook #'php-boris-minor-mode))
 (req-package php-eldoc
   :require php-mode)
 (req-package php-extras
@@ -1863,7 +1866,7 @@
 
 (req-package rainbow-delimiters
   :commands rainbow-delimiters-mode
-  :init (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+  :config (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 ;; rainbow-mode.el --- Colorize color names in buffers
 (req-package rainbow-mode)
@@ -1909,7 +1912,7 @@
 
 (req-package sotlisp)
 
-(req-package speed-type)
+;;(req-package speed-type)
 
 (req-package sr-speedbar
   :require (helm ecb))
@@ -1930,8 +1933,8 @@
 (req-package tagedit
   :commands tagedit-mode
   :diminish tagedit-mode
-  :init (add-hook 'html-mode-hook #'tagedit-mode)
-  :config (tagedit-add-paredit-like-keybindings))
+  :config (progn (add-hook 'html-mode-hook #'tagedit-mode)
+                 (tagedit-add-paredit-like-keybindings)))
 
 (req-package undo-tree
   :diminish undo-tree-mode
@@ -1969,14 +1972,14 @@
          ("C-c w w" . wconf-switch-to-config)
          ("C-<prior>" . wconf-use-previous)
          ("C-<next>" . wconf-use-next))
-  :init (add-hook 'desktop-after-read-hook ; so we have all buffers again
-                  (lambda ()
-                    (wconf-load)
-                    (wconf-switch-to-config 0)
-                    (add-hook 'kill-emacs-hook
-                              (lambda ()
-                                (wconf-store-all)
-                                (wconf-save))))))
+  :config (add-hook 'desktop-after-read-hook ; so we have all buffers again
+                    (lambda ()
+                      (wconf-load)
+                      (wconf-switch-to-config 0)
+                      (add-hook 'kill-emacs-hook
+                                (lambda ()
+                                  (wconf-store-all)
+                                  (wconf-save))))))
 
 (req-package web-mode
   :mode ("\\.html?\\'" "\\.tpl\\'" "\\.tpla\\'" "\\.php\\'" "\\.phtml\\'"
@@ -2008,17 +2011,17 @@
 
 (req-package with-editor
   :commands with-editor-export-editor
-  :init (progn
-          (add-hook 'shell-mode-hook  #'with-editor-export-editor)
-          (add-hook 'term-mode-hook   #'with-editor-export-editor)
-          (add-hook 'eshell-mode-hook #'with-editor-export-editor))
-  :config (shell-command-with-editor-mode 1))
+  :config (progn
+            (add-hook 'shell-mode-hook  #'with-editor-export-editor)
+            (add-hook 'term-mode-hook   #'with-editor-export-editor)
+            (add-hook 'eshell-mode-hook #'with-editor-export-editor)
+            (shell-command-with-editor-mode 1)))
 
 ;; ws-butler.el --- Unobtrusively remove trailing whitespace.
 (req-package ws-butler
   :commands ws-butler-mode
   :diminish ws-butler-mode
-  :init (add-hook 'prog-mode-hook #'ws-butler-mode))
+  :config (add-hook 'prog-mode-hook #'ws-butler-mode))
 ;; #+end_src
 
 ;; *** 放弃的扩展
@@ -2057,7 +2060,7 @@
 ;;   :require scheme)
 
 ;; (req-package outlined-elisp-mode
-;;   :init (add-hook 'emacs-lisp-mode-hook #'outlined-elisp-find-file-hook))
+;;   :config (add-hook 'emacs-lisp-mode-hook #'outlined-elisp-find-file-hook))
 
 ;; 启用 rainbow-delimiters 后无效果，并可替代
 ;; (req-package paren-face
@@ -2091,7 +2094,7 @@
 ;;   :config (global-fringe-current-line-mode))
 ;; 效果差
 ;; (req-package highlight-indent-guides
-;;   :init (add-hook 'prog-mode-hook #'highlight-indent-guides-mode))
+;;   :config (add-hook 'prog-mode-hook #'highlight-indent-guides-mode))
 ;; (req-package indent-guide)
 ;; (req-package highlight-indentation)
 ;; (req-package page-break-lines
@@ -2106,9 +2109,9 @@
 ;; (req-package fancy-battery
 ;;   :disabled t
 ;;   :require battery
-;;   :init (progn
-;;           (remove-hook 'after-init-hook #'display-battery-mode)
-;;           (add-hook 'after-init-hook #'fancy-battery-mode)))
+;;   :config (progn
+;;             (remove-hook 'after-init-hook #'display-battery-mode)
+;;             (add-hook 'after-init-hook #'fancy-battery-mode)))
 
 ;; (req-package-force load-dir
 ;;   :init
@@ -2125,18 +2128,18 @@
 ;; (req-package paredit
 ;;   :commands enable-paredit-mode
 ;;   :diminish paredit-mode
-;;   :init (progn
-;;           (add-hook 'lisp-mode-hook #'enable-paredit-mode)
-;;           (add-hook 'scheme-mode-hook #'enable-paredit-mode)
-;;           (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
-;;           (add-hook 'clojure-mode-hook #'enable-paredit-mode)))
+;;   :config (progn
+;;             (add-hook 'lisp-mode-hook #'enable-paredit-mode)
+;;             (add-hook 'scheme-mode-hook #'enable-paredit-mode)
+;;             (add-hook 'emacs-lisp-mode-hook #'enable-paredit-mode)
+;;             (add-hook 'clojure-mode-hook #'enable-paredit-mode)))
 
 ;; (req-package paredit-everywhere
 ;;   :commands paredit-everywhere-mode
 ;;   :diminish paredit-everywhere-mode
-;;   :init (progn
-;;           (add-hook 'prog-mode-hook #'paredit-everywhere-mode)
-;;           (add-hook 'css-mode-hook #'paredit-everywhere-mode)))
+;;   :config (progn
+;;             (add-hook 'prog-mode-hook #'paredit-everywhere-mode)
+;;             (add-hook 'css-mode-hook #'paredit-everywhere-mode)))
 
 ;; (req-package paxedit
 ;;   :commands paxedit-mode
@@ -2154,11 +2157,11 @@
 ;;          ("M-u" . paxedit-symbol-change-case)
 ;;          ("C-@" . paxedit-symbol-copy)
 ;;          ("C-#" . paxedit-symbol-kill))
-;;   :init (progn
-;;           (add-hook 'lisp-mode-hook #'paxedit-mode)
-;;           (add-hook 'scheme-mode-hook #'paxedit-mode)
-;;           (add-hook 'emacs-lisp-mode-hook #'paxedit-mode)
-;;           (add-hook 'clojure-mode-hook #'paxedit-mode)))
+;;   :config (progn
+;;             (add-hook 'lisp-mode-hook #'paxedit-mode)
+;;             (add-hook 'scheme-mode-hook #'paxedit-mode)
+;;             (add-hook 'emacs-lisp-mode-hook #'paxedit-mode)
+;;             (add-hook 'clojure-mode-hook #'paxedit-mode)))
 
 ;; (req-package rw-language-and-country-codes)
 ;; (req-package rw-ispell
@@ -2169,8 +2172,9 @@
 ;; session.el --- use variables, registers and buffer places across sessions
 ;; (req-package session
 ;;   :disabled t
-;;   :init (add-hook 'after-init-hook #'session-initialize)
-;;   :config (add-to-list 'session-globals-exclude 'org-mark-ring))
+;;   :config (progn
+;;             (add-hook 'after-init-hook #'session-initialize)
+;;             (add-to-list 'session-globals-exclude 'org-mark-ring)))
 
 ;; (req-package smartparens
 ;;   :diminish smartparens-mode
@@ -2202,12 +2206,12 @@
 ;; (req-package org-annotate-file)
 
 ;; (req-package windmove
-;;   :init (progn
-;;           ;; Make windmove work in org-mode
-;;           (add-hook 'org-shiftup-final-hook #'windmove-up)
-;;           (add-hook 'org-shiftleft-final-hook #'windmove-left)
-;;           (add-hook 'org-shiftdown-final-hook #'windmove-down)
-;;           (add-hook 'org-shiftright-final-hook #'windmove-right)))
+;;   :config (progn
+;;             ;; Make windmove work in org-mode
+;;             (add-hook 'org-shiftup-final-hook #'windmove-up)
+;;             (add-hook 'org-shiftleft-final-hook #'windmove-left)
+;;             (add-hook 'org-shiftdown-final-hook #'windmove-down)
+;;             (add-hook 'org-shiftright-final-hook #'windmove-right)))
 
 ;; (req-package yasnippet
 ;;   :diminish yas-minor-mode
